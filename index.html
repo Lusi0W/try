@@ -1,0 +1,1289 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta http-equiv="x-dns-prefetch-control" content="off"><script src="https://puc.poecdn.net/authenticated_preview_page/standard.3ef2c256959faf5a756d.js"></script>
+    <meta charset="utf-8">
+    <title>Learning Adventure v15</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://puc.poecdn.net/authenticated_preview_page/disableWebRTC.9710cebe07429a9e8e06.js"></script><meta name="x-poe-allow-downloads" content="true"><meta name="x-poe-datastore-behavior" content="disabled"><script src="https://puc.poecdn.net/authenticated_preview_page/tw.b9024aecac666455e183.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/deps.faccd16000d314dc16d5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/exports.b0f0f482cdeb5302b0b9.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/renderer.75c73ae6b4235f62945a.js"></script><script>Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }var _react = require('react'); var _react2 = _interopRequireDefault(_react);
+
+
+
+
+
+
+
+
+var _lucidereact = require('lucide-react');
+
+
+
+var _recharts = require('recharts');
+
+
+// ═══ CONSTANTS ═══
+const DEFAULT_PERF = { streak: 0, lastActiveDate: '', totalQuestions: 0, subjects: {} };
+const DEFAULT_SETTINGS = {
+  provider: 'poe', model: 'Claude-3.5-Sonnet', apiKey: '', apiDelay: 1,
+  language: 'English', contextBudget: 'front_5000', customFront: 5000, customEnd: 5000,
+  indexMode: 'update', saveMode: 'Comprehensive',
+  curriculumUpdateTime: '02:00', csvAutoGenTime: '03:00', enableAILogging: false
+};
+const DEFAULT_CSV = `Subject,Chapter Number,Chapter Title,Content Introduction,Question Types,Question,Option A,Option B,Option C,Option D,Answer,Hints,Explanation
+Chinese,1,Basic Numbers,Learn Chinese numbers!,MC,Which character is 'One'?,一,二,三,四,A,Single horizontal line.,The character '一' is one horizontal stroke representing one.
+Chinese,1,Basic Numbers,Learn Chinese numbers!,MS,Which are numbers?,一,人,二,口,"A,C",Look for counting strokes.,"'一' (one) and '二' (two) are numbers."
+Chinese,2,Sentences,Build Chinese sentences!,ORD,Order: 'I am a student'.,我,是,學,生,"A,B,C,D",Subject + Verb + Noun.,"我(I) + 是(am) + 學生(student)."
+Mathematics,1,Counting to 10,Count items up to 10.,MC,3 apples + 2 more = ?,3,4,5,6,C,Use fingers!,"3 + 2 = 5."
+Mathematics,1,Counting to 10,Count items up to 10.,FITB,Number after 7?,,,,8,Before 9.,After 7 comes 8.
+Mathematics,2,Size and Order,Compare numbers.,ORD,Smallest to largest.,8,2,5,9,"B,C,A,D",Start smallest.,"Order: 2, 5, 8, 9."
+Science,1,Our Senses,Five senses!,MC,Which body part to see?,Ears,Eyes,Nose,Hands,B,You blink them!,Eyes allow us to see.
+Science,1,Our Senses,Five senses!,MS,Which are senses?,Sight,Flying,Hearing,Invisibility,"A,C",Natural abilities.,"Sight and hearing are real senses."
+Science,2,Living Things,Plants and animals.,FITB,Is a rock living? (Yes/No),,,,No,Does it eat?,Rocks are non-living.`;
+const AI_PROVIDERS = [
+  { id: 'poe', name: 'Poe API', models: ['Claude-3.5-Sonnet', 'GPT-4o', 'Gemini-2.0-Flash'] },
+  { id: 'openrouter', name: 'OpenRouter', models: ['anthropic/claude-sonnet-4-5', 'openai/gpt-4o'] },
+  { id: 'gemini', name: 'Google Gemini', models: ['gemini-2.0-flash', 'gemini-2.5-pro'] },
+  { id: 'claude', name: 'Anthropic Claude', models: ['claude-sonnet-4-5-20250514', 'claude-3-5-sonnet-20241022'] }
+];
+const CONTENT_LEVELS = [
+  { id: 'kindergarten', label: 'Kindergarten' }, { id: 'elementary', label: 'Elementary' },
+  { id: 'middle', label: 'Middle School' }, { id: 'high', label: 'High School' },
+  { id: 'college', label: 'College' }, { id: 'professional', label: 'Professional' }
+];
+
+// ═══ UTILITIES ═══
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const formatBytes = (b) => { if (!b) return '0 B'; const k = 1024; const s = ['B','KB','MB','GB']; const i = Math.floor(Math.log(b)/Math.log(k)); return `${(b/Math.pow(k,i)).toFixed(1)} ${s[i]}`; };
+
+function parseCSV(text) {
+  const rows = []; let row = []; let cell = ''; let inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '"') { if (inQ && text[i+1] === '"') { cell += '"'; i++; } else inQ = !inQ; }
+    else if (c === ',' && !inQ) { row.push(cell.trim()); cell = ''; }
+    else if ((c === '\n' || c === '\r') && !inQ) { if (c === '\r' && text[i+1] === '\n') i++; row.push(cell.trim()); if (row.some(c => c)) rows.push(row); row = []; cell = ''; }
+    else cell += c;
+  }
+  if (cell || row.length) { row.push(cell.trim()); if (row.some(c => c)) rows.push(row); }
+  if (rows.length < 2) return [];
+  const h = rows[0].map(x => x.toLowerCase().trim());
+  return rows.slice(1).map(r => { const o = {}; h.forEach((k, i) => o[k] = r[i] || ''); return o; });
+}
+
+function toCSV(arr) {
+  if (!arr.length) return '';
+  const h = Object.keys(arr[0]);
+  return [h.join(','), ...arr.map(r => h.map(k => { let v = r[k] ? String(r[k]) : ''; if (v.includes(',') || v.includes('"') || v.includes('\n')) v = `"${v.replace(/"/g,'""')}"`; return v; }).join(','))].join('\n');
+}
+
+function getQId(q) { return `${q.subject}|${q['chapter number']}|${q.question}`; }
+
+function formatAnswer(q, type) {
+  const raw = (q.answer || '').trim();
+  if (type === 'FITB') return raw;
+  const keys = raw.split(',').map(k => k.trim());
+  const m = k => q[`option ${k.toLowerCase()}`] || k;
+  if (type === 'ORD') return keys.map(m).join(' ➔ ');
+  if (type === 'MS') return keys.map(m).join(', ');
+  return m(raw);
+}
+
+function buildCurriculum(data) {
+  const s = {};
+  data.forEach(r => {
+    const sub = r.subject, ch = r['chapter number'];
+    if (!sub || !ch) return;
+    if (!s[sub]) s[sub] = {};
+    if (!s[sub][ch]) s[sub][ch] = { title: r['chapter title'], intro: r['content introduction'], questions: [] };
+    s[sub][ch].questions.push(r);
+  });
+  return s;
+}
+
+function renderMd(md) {
+  if (!md) return '';
+  return md.replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold mt-4 mb-2 text-slate-800">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold mt-6 mb-3 text-slate-900 border-b pb-2">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-extrabold mt-6 mb-4 text-slate-900">$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc text-slate-700">$1</li>')
+    .replace(/\n\n/g, '</p><p class="my-2 text-slate-700 leading-relaxed">')
+    .replace(/\n/g, '<br/>');
+}
+
+// ═══ MAIN APP ═══
+ function StudyHub() {
+  // ── Navigation ──
+  const [page, setPage] = _react.useState.call(void 0, 'home');
+  const [collapsed, setCollapsed] = _react.useState.call(void 0, false);
+  const [toast, setToast] = _react.useState.call(void 0, null);
+
+  // ── Workspace ──
+  const [wsHandle, setWsHandle] = _react.useState.call(void 0, null);
+  const [dirs, setDirs] = _react.useState.call(void 0, null);
+
+  // ── Settings ──
+  const [settings, setSettings] = _react.useState.call(void 0, { ...DEFAULT_SETTINGS });
+
+  // ── Shared Data ──
+  const [curriculum, setCurriculum] = _react.useState.call(void 0, {});
+  const [rawCsv, setRawCsv] = _react.useState.call(void 0, []);
+  const [perf, setPerf] = _react.useState.call(void 0, { ...DEFAULT_PERF });
+  const [reinf, setReinf] = _react.useState.call(void 0, []);
+  const [history, setHistory] = _react.useState.call(void 0, []);
+  const [fileIndex, setFileIndex] = _react.useState.call(void 0, []);
+  const [folderStruct, setFolderStruct] = _react.useState.call(void 0, {});
+  const [waitFiles, setWaitFiles] = _react.useState.call(void 0, []);
+  const [tracker, setTracker] = _react.useState.call(void 0, { courses: {} });
+
+  // ── Dashboard ──
+  const [dashView, setDashView] = _react.useState.call(void 0, 'main');
+  const [oChart, setOChart] = _react.useState.call(void 0, 'radar');
+  const [cChart, setCChart] = _react.useState.call(void 0, 'bar');
+  const [perfSub, setPerfSub] = _react.useState.call(void 0, '');
+  const [isUpdating, setIsUpdating] = _react.useState.call(void 0, false);
+  const [isManaging, setIsManaging] = _react.useState.call(void 0, false);
+
+  // ── Learning Adventure ──
+  const [laView, setLaView] = _react.useState.call(void 0, 'subjects');
+  const [laSub, setLaSub] = _react.useState.call(void 0, null);
+  const [laCh, setLaCh] = _react.useState.call(void 0, null);
+  const [qMode, setQMode] = _react.useState.call(void 0, 'normal');
+  const [qQueue, setQQueue] = _react.useState.call(void 0, []);
+  const [qIdx, setQIdx] = _react.useState.call(void 0, 0);
+  const [results, setResults] = _react.useState.call(void 0, []);
+  const [fb, setFb] = _react.useState.call(void 0, null);
+  const [hint, setHint] = _react.useState.call(void 0, false);
+
+  // ── Knowledge Searcher ──
+  const [sq, setSq] = _react.useState.call(void 0, '');
+  const [sf, setSf] = _react.useState.call(void 0, false);
+  const [fil, setFil] = _react.useState.call(void 0, { types: [], authors: [], tags: [], minSize: '', maxSize: '', dateFrom: '', dateTo: '' });
+  const [indexing, setIndexing] = _react.useState.call(void 0, false);
+  const [idxProg, setIdxProg] = _react.useState.call(void 0, { total: 0, current: 0, name: '', ai: 0 });
+  const [selIds, setSelIds] = _react.useState.call(void 0, new Set());
+  const [ksView, setKsView] = _react.useState.call(void 0, 'search');
+
+  // ── File Manager ──
+  const [fmView, setFmView] = _react.useState.call(void 0, 'library');
+  const [aiForm, setAiForm] = _react.useState.call(void 0, { job: '', hobbies: '', language: 'English', custom: '' });
+  const [fmStatus, setFmStatus] = _react.useState.call(void 0, '');
+
+  // ── CSV Generator ──
+  const [csvStep, setCsvStep] = _react.useState.call(void 0, 1);
+  const [csvGoals, setCsvGoals] = _react.useState.call(void 0, {
+    subject: '', language: 'English', level: 'elementary', numChapters: 5,
+    questionsPerChapter: 5, apiDelay: 2, additionalRequirements: '', useLibrary: false
+  });
+  const [outFiles, setOutFiles] = _react.useState.call(void 0, []);
+  const [chapters, setChapters] = _react.useState.call(void 0, []);
+  const [gFiles, setGFiles] = _react.useState.call(void 0, []);
+  const [chFiles, setChFiles] = _react.useState.call(void 0, {});
+  const [csvOut, setCsvOut] = _react.useState.call(void 0, '');
+  const [csvRun, setCsvRun] = _react.useState.call(void 0, false);
+  const [csvProg, setCsvProg] = _react.useState.call(void 0, 0);
+  const [csvLogs, setCsvLogs] = _react.useState.call(void 0, []);
+  const [selLibFiles, setSelLibFiles] = _react.useState.call(void 0, []);
+
+  // ── Revision Notes ──
+  const [notes, setNotes] = _react.useState.call(void 0, []);
+  const [selNote, setSelNote] = _react.useState.call(void 0, null);
+  const [noteContent, setNoteContent] = _react.useState.call(void 0, '');
+  const [genNote, setGenNote] = _react.useState.call(void 0, false);
+
+  const notify = (msg, type = 'info') => { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); };
+
+  // ── File System Helpers ──
+  const getDir = async (p, n, c = true) => p.getDirectoryHandle(n, { create: c });
+  const getFile = async (p, n, c = true) => p.getFileHandle(n, { create: c });
+  const readText = async (fh) => { const f = await fh.getFile(); return f.text(); };
+  const writeText = async (fh, t) => { const w = await fh.createWritable(); await w.write(t); await w.close(); };
+  const readJSON = async (dir, name, def) => { try { const fh = await getFile(dir, name, false); const t = await readText(fh); return JSON.parse(t); } catch (e2) { return def; } };
+  const writeJSON = async (dir, name, data) => { if (!dir) return; const fh = await getFile(dir, name); await writeText(fh, JSON.stringify(data, null, 2)); };
+
+  // ── AI Caller ──
+  const callAI = async (prompt, sysPrompt) => {
+    const { provider, apiKey, model } = settings;
+    if (!apiKey) return 'No API key configured.';
+    const msgs = sysPrompt ? [{ role: 'system', content: sysPrompt }, { role: 'user', content: prompt }] : [{ role: 'user', content: prompt }];
+    let resp = '';
+    try {
+      if (provider === 'poe') {
+        const r = await fetch('https://api.poe.com/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({ model, messages: msgs }) });
+        const d = await r.json(); resp = d.choices[0].message.content;
+      } else if (provider === 'openrouter') {
+        const r = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({ model, messages: msgs }) });
+        const d = await r.json(); resp = d.choices[0].message.content;
+      } else if (provider === 'gemini') {
+        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
+        const d = await r.json(); resp = d.candidates[0].content.parts[0].text;
+      } else if (provider === 'claude') {
+        const r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerously-allow-browser': 'true' }, body: JSON.stringify({ model, max_tokens: 4096, messages: msgs.filter(m => m.role !== 'system'), ...(sysPrompt ? { system: sysPrompt } : {}) }) });
+        const d = await r.json(); resp = d.content[0].text;
+      }
+    } catch (e) { resp = `Error: ${e.message}`; }
+    if (settings.enableAILogging && _optionalChain([dirs, 'optionalAccess', _2 => _2.app])) {
+      try {
+        const fh = await getFile(dirs.app, 'ai_chat_log.txt', true);
+        const w = await fh.createWritable({ keepExistingData: true });
+        const f = await fh.getFile();
+        await w.seek(f.size);
+        await w.write(`\n[${new Date().toLocaleString()}]\nPROMPT: ${prompt.substring(0, 500)}...\nRESPONSE: ${resp.substring(0, 500)}...\n${'='.repeat(40)}\n`);
+        await w.close();
+      } catch (e3) {}
+    }
+    return resp;
+  };
+
+  const getFileContent = async (file) => {
+    const { contextBudget, customFront, customEnd } = settings;
+    if (contextBudget === 'filename_only') return file.name;
+    try {
+      const t = await file.text();
+      if (contextBudget === 'whole_content') return t;
+      if (contextBudget === 'front_5000') return t.substring(0, 5000);
+      if (contextBudget === 'front_5000_end_5000') return t.length <= 10000 ? t : t.substring(0, 5000) + '\n...\n' + t.substring(t.length - 5000);
+      if (contextBudget === 'custom') return t.length <= (customFront + customEnd) ? t : t.substring(0, customFront) + '\n...\n' + t.substring(t.length - customEnd);
+      return t.substring(0, 5000);
+    } catch (e4) { return `[Binary] ${file.name}`; }
+  };
+
+  // ── Workspace Init ──
+  const initWorkspace = async () => {
+    try {
+      if (!window.showDirectoryPicker) throw new Error('File System Access API not supported. Use Chrome or Edge.');
+      const root = await window.showDirectoryPicker({ mode: 'readwrite' });
+      setWsHandle(root);
+      const d = {
+        app: await getDir(root, 'App'),
+        content: await getDir(root, 'Learning_Adventure_content'),
+        library: await getDir(root, 'Management_Library'),
+        wait: await getDir(root, 'Wait_to_Manage_File'),
+        searcher: await getDir(root, 'KnowledgeSearcher_App'),
+        revision: await getDir(root, 'User_revision_notes')
+      };
+      d.pending = await getDir(d.content, 'Pending_Updates');
+      setDirs(d);
+
+      // Load all data
+      const s = await readJSON(d.app, 'app_setting.json', DEFAULT_SETTINGS);
+      setSettings(prev => ({ ...prev, ...s }));
+      const p = await readJSON(d.app, 'Current_User_Performance.json', DEFAULT_PERF);
+      setPerf(p);
+      setPerfSub(Object.keys(p.subjects)[0] || '');
+      setReinf(await readJSON(d.app, 'Current_User_Reinforcement_Question.json', []));
+      setHistory(await readJSON(d.app, 'User_Reinforcement_History.json', []));
+      setFileIndex(await readJSON(d.searcher, 'library_searching_system_index.json', []));
+      setFolderStruct(await readJSON(d.app, 'folder_directory_structure.json', {}));
+      setTracker(await readJSON(d.app, 'csv_generation_tracker.json', { courses: {} }));
+
+      // Load CSV
+      let csvText;
+      try { const fh = await getFile(d.content, 'Learning_Adventure_Content_All_Course.csv', false); csvText = await readText(fh); } catch (e5) { csvText = DEFAULT_CSV; const fh = await getFile(d.content, 'Learning_Adventure_Content_All_Course.csv'); await writeText(fh, DEFAULT_CSV); }
+      const parsed = parseCSV(csvText);
+      setRawCsv(parsed);
+      setCurriculum(buildCurriculum(parsed));
+
+      // Load wait files
+      await loadWaitFiles(d.wait);
+      // Load notes
+      await loadNotes(d.revision);
+
+      notify('Workspace connected!', 'success');
+    } catch (e) {
+      notify(e.message, 'error');
+    }
+  };
+
+  const loadWaitFiles = async (dir) => {
+    if (!dir) return;
+    const files = [];
+    for await (const entry of dir.values()) {
+      if (entry.kind === 'file') { const f = await entry.getFile(); files.push({ name: entry.name, size: f.size, type: f.type, handle: entry }); }
+    }
+    setWaitFiles(files);
+  };
+
+  const loadNotes = async (dir) => {
+    if (!dir) return;
+    const list = [];
+    for await (const entry of dir.values()) {
+      if (entry.kind === 'file' && entry.name.endsWith('.md')) {
+        const f = await entry.getFile();
+        list.push({ name: entry.name, date: f.lastModified, handle: entry });
+      }
+    }
+    list.sort((a, b) => b.date - a.date);
+    setNotes(list);
+  };
+
+  // ── Auto Timer ──
+  _react.useEffect.call(void 0, () => {
+    if (!dirs) return;
+    const iv = setInterval(async () => {
+      const now = new Date();
+      const t = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      if (t === settings.curriculumUpdateTime) await handleMergeCurriculum(true);
+      if (t === settings.csvAutoGenTime) { /* auto CSV gen placeholder */ }
+      if (now.getHours() >= 18) await autoRevisionCheck(now);
+    }, 60000);
+    return () => clearInterval(iv);
+  }, [dirs, settings]);
+
+  const autoRevisionCheck = async (now) => {
+    if (!dirs) return;
+    const ds = now.toISOString().split('T')[0];
+    try { await getFile(dirs.revision, `daily_revision_note_${ds}.md`, false); } catch (e6) { await generateNote('daily'); }
+    if (now.getDay() === 0) { try { await getFile(dirs.revision, `weekly_revision_note_${ds}.md`, false); } catch (e7) { await generateNote('weekly'); } }
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    if (now.getDate() === lastDay) { try { await getFile(dirs.revision, `monthly_revision_note_${ds}.md`, false); } catch (e8) { await generateNote('monthly'); } }
+  };
+
+  // ── Dashboard Actions ──
+  const handleMergeCurriculum = async (silent = false) => {
+    if (!dirs) return;
+    setIsUpdating(true);
+    try {
+      const pendingFiles = [];
+      for await (const entry of dirs.pending.values()) {
+        if (entry.kind === 'file' && entry.name.endsWith('.csv')) pendingFiles.push(entry);
+      }
+      if (pendingFiles.length === 0) { if (!silent) notify('No pending updates found.', 'info'); setIsUpdating(false); return; }
+      let allData = [...rawCsv];
+      for (const fh of pendingFiles) {
+        const text = await readText(fh);
+        const newRows = parseCSV(text);
+        const bySubject = {};
+        newRows.forEach(r => { const s = r.subject; if (!bySubject[s]) bySubject[s] = []; bySubject[s].push(r); });
+        Object.entries(bySubject).forEach(([sub, rows]) => {
+          let lastIdx = -1;
+          for (let i = allData.length - 1; i >= 0; i--) { if (allData[i].subject === sub) { lastIdx = i; break; } }
+          if (lastIdx >= 0) allData.splice(lastIdx + 1, 0, ...rows);
+          else allData.push(...rows);
+        });
+        await dirs.pending.removeEntry(fh.name);
+      }
+      setRawCsv(allData);
+      setCurriculum(buildCurriculum(allData));
+      const fh = await getFile(dirs.content, 'Learning_Adventure_Content_All_Course.csv');
+      await writeText(fh, toCSV(allData));
+      notify(`Merged ${pendingFiles.length} file(s)!`, 'success');
+    } catch (e) { notify(`Merge error: ${e.message}`, 'error'); }
+    setIsUpdating(false);
+  };
+
+  const handleBuildIndex = async () => {
+    if (!dirs || indexing) return;
+    setIndexing(true); setIdxProg({ total: 0, current: 0, name: 'Scanning...', ai: 0 });
+    try {
+      const scan = async (dh, path = '') => {
+        let f = []; const exts = ['.txt','.md','.json','.csv','.doc','.pdf','.html','.ppt','.xls'];
+        for await (const e of dh.values()) {
+          if (e.name === 'KnowledgeSearcher_App' || e.name === 'App') continue;
+          const p = path ? `${path}/${e.name}` : e.name;
+          if (e.kind === 'file') { const ext = e.name.substring(e.name.lastIndexOf('.')).toLowerCase(); if (exts.some(x => ext.includes(x))) f.push({ handle: e, path: p, ext }); }
+          else if (e.kind === 'directory') f = f.concat(await scan(e, p));
+        }
+        return f;
+      };
+      const files = await scan(wsHandle);
+      setIdxProg({ total: files.length, current: 0, name: 'Starting...', ai: 0 });
+      const idx = []; let aiCalls = 0;
+      for (let i = 0; i < files.length; i++) {
+        const item = files[i]; const file = await item.handle.getFile();
+        setIdxProg(p => ({ ...p, current: i + 1, name: item.path }));
+        let skip = false;
+        if (settings.indexMode === 'update') {
+          const match = fileIndex.find(x => x.name === file.name && x.size === file.size && x.lastModified === file.lastModified);
+          if (match) { idx.push({ ...match, path: item.path }); skip = true; }
+        }
+        if (!skip) {
+          const ctx = await getFileContent(file);
+          if (aiCalls > 0 && settings.apiDelay > 0) await sleep(settings.apiDelay * 1000);
+          let meta = { summary: 'No API key.', tags: ['unprocessed'], author: 'Unknown' };
+          if (settings.apiKey) {
+            const resp = await callAI(`Analyze file "${file.name}". Content:\n${ctx.substring(0,3000)}\n\nReturn JSON: {"summary":"...","tags":["..."],"author":"..."}`);
+            try { const m = resp.match(/\{[\s\S]*\}/); meta = m ? JSON.parse(m[0]) : meta; } catch (e9) {}
+          }
+          aiCalls++;
+          setIdxProg(p => ({ ...p, ai: aiCalls }));
+          idx.push({ id: `${item.path}-${file.lastModified}`, name: file.name, path: item.path, size: file.size, lastModified: file.lastModified, type: item.ext.replace('.','').toUpperCase(), ...meta });
+        }
+      }
+      setFileIndex(idx);
+      await writeJSON(dirs.searcher, 'library_searching_system_index.json', idx);
+      notify(`Indexed! ${aiCalls} AI calls.`, 'success');
+    } catch (e) { notify(`Index error: ${e.message}`, 'error'); }
+    setIndexing(false);
+  };
+
+  const handleAutoManage = async () => {
+    if (!dirs || waitFiles.length === 0) { notify('No files to manage.', 'info'); return; }
+    setIsManaging(true);
+    for (const fo of waitFiles) {
+      try {
+        setFmStatus(`Processing: ${fo.name}`);
+        const file = await fo.handle.getFile();
+        const ctx = await getFileContent(file);
+        const resp = await callAI(`File: "${fo.name}"\nContent: ${ctx.substring(0,2000)}\nFolder structure: ${JSON.stringify(folderStruct)}\nReturn ONLY the folder path.`);
+        const targetPath = resp.trim().replace(/["'`]/g, '');
+        let targetDir = dirs.library;
+        for (const part of targetPath.split('/').filter(Boolean)) { targetDir = await getDir(targetDir, part.replace(/[<>:"|?*]/g, '')); }
+        const buf = await file.arrayBuffer();
+        const nfh = await getFile(targetDir, fo.name);
+        const w = await nfh.createWritable(); await w.write(buf); await w.close();
+        await dirs.wait.removeEntry(fo.name);
+        if (settings.apiDelay > 0) await sleep(settings.apiDelay * 1000);
+      } catch (e) { console.error(e); }
+    }
+    setFmStatus('');
+    await loadWaitFiles(dirs.wait);
+    setIsManaging(false);
+    notify('Auto-management complete!', 'success');
+  };
+
+  // ── Revision Notes ──
+  const generateNote = async (type) => {
+    if (!dirs) return;
+    setGenNote(true);
+    try {
+      const today = new Date();
+      const ds = today.toISOString().split('T')[0];
+      const records = history.filter(r => {
+        const rd = new Date(r.date);
+        if (type === 'daily') return r.date === ds;
+        if (type === 'weekly') return rd >= new Date(today - 7 * 86400000);
+        return rd.getMonth() === today.getMonth() && rd.getFullYear() === today.getFullYear();
+      });
+      if (records.length === 0) { notify(`No ${type} records found.`, 'info'); setGenNote(false); return; }
+      const grouped = {};
+      records.forEach(r => { const s = _optionalChain([r, 'access', _3 => _3.questionObj, 'optionalAccess', _4 => _4.subject]) || 'Unknown'; if (!grouped[s]) grouped[s] = []; grouped[s].push(r); });
+      let md = `# ${type.charAt(0).toUpperCase() + type.slice(1)} Revision Note\n\n**Date**: ${today.toLocaleDateString()}\n**Total Mistakes**: ${records.length}\n\n`;
+      for (const [sub, recs] of Object.entries(grouped)) {
+        md += `## ${sub}\n\n`;
+        recs.forEach((r, i) => {
+          const q = r.questionObj;
+          md += `### ${i + 1}. ${q.question}\n\n`;
+          if (q['option a']) md += `- A: ${q['option a']}\n- B: ${q['option b']}\n- C: ${q['option c']}\n- D: ${q['option d']}\n\n`;
+          md += `**Your Answer**: ${r.userAnswer}\n**Correct Answer**: ${q.answer}\n`;
+          if (q.explanation) md += `**Explanation**: ${q.explanation}\n`;
+          md += '\n---\n\n';
+        });
+        if (settings.apiKey) {
+          const qs = recs.map(r => `Q: ${r.questionObj.question} | Wrong: ${r.userAnswer} | Correct: ${r.questionObj.answer}`).join('\n');
+          const analysis = await callAI(`Student got these wrong in ${sub}:\n${qs}\n\nProvide key knowledge points and study tips. Language: ${settings.language}`);
+          md += `### Key Knowledge Points\n\n${analysis}\n\n`;
+        }
+      }
+      const fname = `${type}_revision_note_${ds}.md`;
+      const fh = await getFile(dirs.revision, fname);
+      await writeText(fh, md);
+      await loadNotes(dirs.revision);
+      notify(`${type} note generated!`, 'success');
+    } catch (e) { notify(`Error: ${e.message}`, 'error'); }
+    setGenNote(false);
+  };
+
+  // ── Quiz Logic ──
+  const startQuiz = (mode, sub, ch) => {
+    let q = [];
+    if (mode === 'normal' || mode === 'retry') q = curriculum[sub][ch].questions;
+    else if (mode === 'reinforcement') q = reinf;
+    else if (mode === 'revision') q = results.filter(r => !r.ok).map(r => r.q);
+    setQMode(mode); setQQueue(q); setQIdx(0); setResults([]); setFb(null); setHint(false);
+    setLaView('quiz');
+  };
+
+  const submitAnswer = (ok, ans) => { setResults(p => [...p, { q: qQueue[qIdx], ok, ans }]); setFb(ok ? 'correct' : 'incorrect'); };
+
+  const nextQ = async () => {
+    if (qIdx + 1 < qQueue.length) { setQIdx(i => i + 1); setFb(null); setHint(false); }
+    else { await processResults(); setLaView('results'); }
+  };
+
+  const processResults = async () => {
+    if (qMode === 'revision') return;
+    let np = { ...perf }; let nr = [...reinf]; let nh = [...history];
+    const today = new Date().toISOString().split('T')[0];
+    if (np.lastActiveDate !== today) {
+      const y = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      np.streak = np.lastActiveDate === y ? np.streak + 1 : 1;
+      np.lastActiveDate = today;
+    }
+    results.forEach(({ q, ok, ans }) => {
+      if (ok) nr = nr.filter(r => getQId(r) !== getQId(q));
+      else { if (!nr.find(r => getQId(r) === getQId(q))) nr.push(q); if (settings.saveMode === 'Comprehensive') nh.push({ date: today, questionObj: q, userAnswer: ans }); }
+    });
+    if ((qMode === 'normal' || qMode === 'retry') && laSub && laCh) {
+      if (!np.subjects[laSub]) np.subjects[laSub] = { totalQuestions_eachSubject: 0, totalCorrect_eachSubject: 0, chapters: {} };
+      np.subjects[laSub].chapters[laCh] = { total: curriculum[laSub][laCh].questions.length, correct: results.filter(r => r.ok).length };
+    }
+    let gt = 0;
+    for (const s in np.subjects) { let st = 0, sc = 0; for (const c in np.subjects[s].chapters) { st += np.subjects[s].chapters[c].total; sc += np.subjects[s].chapters[c].correct; } np.subjects[s].totalQuestions_eachSubject = st; np.subjects[s].totalCorrect_eachSubject = sc; gt += st; }
+    np.totalQuestions = gt;
+    setPerf(np); setReinf(nr); setHistory(nh);
+    if (dirs) {
+      await writeJSON(dirs.app, 'Current_User_Performance.json', np);
+      await writeJSON(dirs.app, 'Current_User_Reinforcement_Question.json', nr);
+      if (settings.saveMode === 'Comprehensive') await writeJSON(dirs.app, 'User_Reinforcement_History.json', nh);
+    }
+  };
+
+  // ── CSV Generator ──
+  const genPath = async () => {
+    setCsvRun(true);
+    try {
+      let outCtx = '';
+      for (const f of outFiles) { const r = new FileReader(); outCtx += await new Promise(res => { r.onload = e => res(e.target.result || ''); r.readAsText(f); }); }
+      for (const f of selLibFiles) { try { const file = await f.handle.getFile(); outCtx += '\n' + (await file.text()).substring(0, 3000); } catch (e10) {} }
+      const resp = await callAI(`Create ${csvGoals.numChapters} chapters for "${csvGoals.subject}" (${csvGoals.level}, ${csvGoals.language}).${csvGoals.additionalRequirements ? ' Req: ' + csvGoals.additionalRequirements : ''}${outCtx ? '\nOutline:\n' + outCtx.substring(0, 5000) : ''}\nReturn JSON array: [{"number":1,"title":"...","description":"..."}]`, 'Return valid JSON only.');
+      const m = resp.match(/\[[\s\S]*\]/);
+      if (!m) throw new Error('Could not parse chapters');
+      setChapters(JSON.parse(m[0]).map((c, i) => ({ number: c.number || i + 1, title: c.title || `Ch ${i + 1}`, description: c.description || '' })));
+    } catch (e) { notify(e.message, 'error'); }
+    setCsvRun(false);
+  };
+
+  const genCSV = async () => {
+    setCsvRun(true); setCsvProg(0); setCsvLogs([]);
+    const rows = ['Subject,Chapter Number,Chapter Title,Content Introduction,Question Types,Question,Option A,Option B,Option C,Option D,Answer,Hints,Explanation'];
+    try {
+      for (let i = 0; i < chapters.length; i++) {
+        const ch = chapters[i];
+        setCsvLogs(p => [...p, `Generating Ch.${ch.number}: ${ch.title}`]);
+        const prompt = `Generate exactly ${csvGoals.questionsPerChapter} quiz questions. CSV rows only, no header.\nSubject: ${csvGoals.subject}\nChapter: ${ch.number}\nTitle: ${ch.title}\nLevel: ${csvGoals.level}\nLanguage: ${csvGoals.language}\n${csvGoals.additionalRequirements ? 'Req: ' + csvGoals.additionalRequirements : ''}\nCSV: Subject,Chapter Number,Chapter Title,Content Introduction,Question Types,Question,Option A,Option B,Option C,Option D,Answer,Hints,Explanation\nTypes: MC(A/B/C/D),MS("A,C"),ORD("B,C,A,D"),FITB(empty options). Quote all fields. Mix types randomly.`;
+        try {
+          const resp = await callAI(prompt, 'Output CSV rows only. No markdown. No headers.');
+          const clean = resp.trim().replace(/^```[a-z]*\n?/gm, '').replace(/\n?```$/gm, '');
+          const chRows = clean.split('\n').filter(r => r.trim() && !/^(Subject|"Subject")/i.test(r));
+          rows.push(...chRows);
+          setCsvLogs(p => [...p, `✓ Ch.${ch.number}: ${chRows.length} questions`]);
+        } catch (e) { setCsvLogs(p => [...p, `✗ Ch.${ch.number}: ${e.message}`]); }
+        setCsvProg(Math.round(((i + 1) / chapters.length) * 100));
+        if (i < chapters.length - 1 && csvGoals.apiDelay > 0) await sleep(csvGoals.apiDelay * 1000);
+      }
+      const csv = rows.join('\n');
+      setCsvOut(csv);
+      if (dirs) {
+        const fname = `${csvGoals.subject.replace(/\s+/g, '_')}_${Date.now()}.csv`;
+        const fh = await getFile(dirs.pending, fname);
+        await writeText(fh, csv);
+        setCsvLogs(p => [...p, `Saved to Pending_Updates/${fname}`]);
+      }
+      setCsvLogs(p => [...p, `🎉 Complete!`]);
+    } catch (e) { notify(e.message, 'error'); }
+    setCsvRun(false);
+  };
+
+  const csvRestart = () => { setCsvStep(1); setCsvGoals({ subject: '', language: 'English', level: 'elementary', numChapters: 5, questionsPerChapter: 5, apiDelay: 2, additionalRequirements: '', useLibrary: false }); setOutFiles([]); setChapters([]); setGFiles([]); setChFiles({}); setCsvOut(''); setSelLibFiles([]); };
+
+  // ── Folder Structure Generator ──
+  const genFolderStruct = async () => {
+    setFmStatus('Generating...');
+    try {
+      const resp = await callAI(`Create JSON folder structure. Job: ${aiForm.job}, Hobbies: ${aiForm.hobbies}, Language: ${aiForm.language}, Custom: ${aiForm.custom}. Include Uncategorized. Return ONLY valid JSON.`);
+      const m = resp.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error('No JSON returned');
+      const struct = JSON.parse(m[0]);
+      setFolderStruct(struct);
+      if (dirs) await writeJSON(dirs.app, 'folder_directory_structure.json', struct);
+      setFmStatus('Structure saved!');
+    } catch (e) { setFmStatus(`Error: ${e.message}`); }
+  };
+
+  // ── Save Settings ──
+  const saveSettings = async () => {
+    if (dirs) await writeJSON(dirs.app, 'app_setting.json', settings);
+    notify('Settings saved!', 'success');
+  };
+
+  // ═══ FILTER HELPERS FOR SEARCHER ═══
+  const filteredIdx = fileIndex.filter(f => {
+    if (sq) { const q = sq.toLowerCase(); if (!f.name.toLowerCase().includes(q) && !(f.summary||'').toLowerCase().includes(q) && !(f.tags||[]).some(t => t.toLowerCase().includes(q))) return false; }
+    if (fil.types.length && !fil.types.includes(f.type)) return false;
+    if (fil.authors.length && !fil.authors.includes(f.author)) return false;
+    if (fil.tags.length && !(f.tags||[]).some(t => fil.tags.includes(t))) return false;
+    const mb = f.size / 1048576;
+    if (fil.minSize && mb < parseFloat(fil.minSize)) return false;
+    if (fil.maxSize && mb > parseFloat(fil.maxSize)) return false;
+    if (fil.dateFrom && f.lastModified < new Date(fil.dateFrom).getTime()) return false;
+    if (fil.dateTo && f.lastModified > new Date(fil.dateTo).getTime() + 86400000) return false;
+    return true;
+  });
+  const avTypes = [...new Set(fileIndex.map(f => f.type))].filter(Boolean);
+  const avAuthors = [...new Set(fileIndex.map(f => f.author))].filter(a => a && a !== 'Unknown');
+  const avTags = [...new Set(fileIndex.flatMap(f => f.tags || []))].filter(Boolean);
+
+  // ═══ SETUP SCREEN ═══
+  if (!wsHandle) return (
+    _react2.default.createElement('div', { className: "min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 flex items-center justify-center p-6"        ,}
+      , _react2.default.createElement('div', { className: "max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center border border-slate-100"        ,}
+        , _react2.default.createElement('div', { className: "w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6"         ,}, _react2.default.createElement(_lucidereact.BookOpen, { className: "w-10 h-10" ,} ))
+        , _react2.default.createElement('h1', { className: "text-3xl font-extrabold text-slate-800 mb-2"   ,}, "Study Hub" )
+        , _react2.default.createElement('p', { className: "text-slate-500 mb-2 text-sm"  ,}, "Unified Learning Platform"  )
+        , _react2.default.createElement('p', { className: "text-slate-600 mb-8" ,}, "Select a local folder to act as your workspace. All apps will share this folder for data storage."                 )
+        , _react2.default.createElement('button', { onClick: initWorkspace, className: "w-full py-4 rounded-2xl font-bold text-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg transition-all flex items-center justify-center gap-2"             ,}
+          , _react2.default.createElement(_lucidereact.FolderOpen, { className: "w-5 h-5" ,} ), " Select Workspace Folder"
+        )
+        , _react2.default.createElement('p', { className: "text-xs text-slate-400 mt-4"  ,}, "Requires Chrome or Edge browser."    )
+      )
+    )
+  );
+
+  // ═══ SIDEBAR ═══
+  const navItems = [
+    { id: 'home', icon: _lucidereact.Home, label: 'Dashboard' },
+    { id: 'learning', icon: _lucidereact.BookOpen, label: 'Learning Adventure' },
+    { id: 'searcher', icon: _lucidereact.Search, label: 'Knowledge Searcher' },
+    { id: 'filemanager', icon: _lucidereact.FolderOpen, label: 'File Manager' },
+    { id: 'revision', icon: _lucidereact.BookMarked, label: 'Revision Notes' },
+    { id: 'csvgen', icon: _lucidereact.Database, label: 'CSV Generator' },
+    { id: 'settings', icon: _lucidereact.Settings, label: 'Settings' },
+  ];
+
+  const Sidebar = () => (
+    _react2.default.createElement('div', { className: `bg-slate-900 text-white flex flex-col transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'} min-h-screen shrink-0`,}
+      , _react2.default.createElement('div', { className: "p-3 flex items-center justify-between h-14 border-b border-slate-800"      ,}
+        , !collapsed && _react2.default.createElement('span', { className: "font-bold text-lg tracking-wide truncate"   ,}, "StudyHub")
+        , _react2.default.createElement('button', { onClick: () => setCollapsed(!collapsed), className: "p-1.5 hover:bg-slate-800 rounded-lg"  ,}, _react2.default.createElement(_lucidereact.Menu, { className: "w-5 h-5" ,} ))
+      )
+      , _react2.default.createElement('nav', { className: "flex-1 py-4 space-y-1 px-2"   ,}
+        , navItems.map(item => (
+          _react2.default.createElement('button', { key: item.id, onClick: () => { setPage(item.id); if (item.id === 'learning') setLaView('subjects'); },
+            className: `w-full flex items-center p-2.5 rounded-lg transition-colors ${page === item.id ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'} ${collapsed ? 'justify-center' : ''}`,
+            title: collapsed ? item.label : '',}
+            , _react2.default.createElement(item.icon, { className: "w-5 h-5 shrink-0"  ,} )
+            , !collapsed && _react2.default.createElement('span', { className: "ml-3 text-sm font-medium truncate"   ,}, item.label)
+          )
+        ))
+      )
+      , _react2.default.createElement('div', { className: "p-3 border-t border-slate-800"  ,}
+        , _react2.default.createElement('div', { className: `flex items-center ${collapsed ? 'justify-center' : ''}`,}
+          , _react2.default.createElement('div', { className: "w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-xs font-bold"        ,}, "S")
+          , !collapsed && _react2.default.createElement('div', { className: "ml-2 truncate" ,}, _react2.default.createElement('p', { className: "text-xs font-medium truncate"  ,}, _optionalChain([wsHandle, 'optionalAccess', _5 => _5.name])), _react2.default.createElement('p', { className: "text-xs text-slate-500" ,}, "Connected"))
+        )
+      )
+    )
+  );
+
+  // ═══ DASHBOARD ═══
+  const Dashboard = () => {
+    const overallData = Object.keys(perf.subjects).map(s => { const d = perf.subjects[s]; const p = d.totalQuestions_eachSubject > 0 ? Math.round((d.totalCorrect_eachSubject / d.totalQuestions_eachSubject) * 100) : 0; return { subject: s, score: p, fullMark: 100 }; });
+    const chData = perfSub && perf.subjects[perfSub] ? Object.keys(perf.subjects[perfSub].chapters).map(c => { const d = perf.subjects[perfSub].chapters[c]; return { chapter: `Ch ${c}`, score: d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0, fullMark: 100 }; }) : [];
+
+    if (dashView === 'performance') return (
+      _react2.default.createElement('div', { className: "p-6 max-w-6xl mx-auto"  ,}
+        , _react2.default.createElement('button', { onClick: () => setDashView('main'), className: "flex items-center gap-2 text-slate-500 hover:text-slate-800 mb-6 font-medium"      ,}, _react2.default.createElement(_lucidereact.ArrowLeft, { className: "w-4 h-4" ,} ), " Back" )
+        , _react2.default.createElement('h2', { className: "text-2xl font-bold mb-6 flex items-center gap-2"     ,}, _react2.default.createElement(_lucidereact.Activity, { className: "w-6 h-6 text-indigo-500"  ,} ), " Performance" )
+        , _react2.default.createElement('div', { className: "grid grid-cols-1 lg:grid-cols-2 gap-6"   ,}
+          , _react2.default.createElement('div', { className: "bg-white p-6 rounded-2xl shadow-sm border"    ,}
+            , _react2.default.createElement('div', { className: "flex justify-between items-center mb-4"   ,}
+              , _react2.default.createElement('h3', { className: "font-bold text-slate-800" ,}, "Overall Subjects" )
+              , _react2.default.createElement('button', { onClick: () => setOChart(t => t === 'radar' ? 'bar' : 'radar'), className: "text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg"      ,}, "Toggle " , oChart === 'radar' ? 'Bar' : 'Radar')
+            )
+            , _react2.default.createElement('div', { className: "h-64",}
+              , overallData.length > 0 ? _react2.default.createElement(_recharts.ResponsiveContainer, null
+                , oChart === 'radar' ? _react2.default.createElement(_recharts.RadarChart, { data: overallData,}, _react2.default.createElement(_recharts.PolarGrid, null ), _react2.default.createElement(_recharts.PolarAngleAxis, { dataKey: "subject",} ), _react2.default.createElement(_recharts.PolarRadiusAxis, { domain: [0,100],} ), _react2.default.createElement(_recharts.Radar, { dataKey: "score", stroke: "#6366f1", fill: "#818cf8", fillOpacity: 0.6,} ), _react2.default.createElement(_recharts.Tooltip, null ))
+                : _react2.default.createElement(_recharts.BarChart, { data: overallData,}, _react2.default.createElement(_recharts.CartesianGrid, { strokeDasharray: "3 3" , vertical: false,} ), _react2.default.createElement(_recharts.XAxis, { dataKey: "subject",} ), _react2.default.createElement(_recharts.YAxis, { domain: [0,100],} ), _react2.default.createElement(_recharts.Tooltip, null ), _react2.default.createElement(_recharts.Bar, { dataKey: "score", fill: "#818cf8", radius: [4,4,0,0],} ))
+              ) : _react2.default.createElement('div', { className: "h-full flex items-center justify-center text-slate-400"    ,}, "No data" )
+            )
+          )
+          , _react2.default.createElement('div', { className: "bg-white p-6 rounded-2xl shadow-sm border"    ,}
+            , _react2.default.createElement('div', { className: "flex justify-between items-center mb-4 gap-2 flex-wrap"     ,}
+              , _react2.default.createElement('div', { className: "flex items-center gap-2"  ,}
+                , _react2.default.createElement('h3', { className: "font-bold text-slate-800" ,}, "Chapters")
+                , _react2.default.createElement('select', { value: perfSub, onChange: e => setPerfSub(e.target.value), className: "text-sm border rounded-lg px-2 py-1"    ,}
+                  , Object.keys(perf.subjects).map(s => _react2.default.createElement('option', { key: s,}, s))
+                )
+              )
+              , _react2.default.createElement('button', { onClick: () => setCChart(t => t === 'bar' ? 'radar' : 'bar'), className: "text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg"      ,}, "Toggle " , cChart === 'bar' ? 'Radar' : 'Bar')
+            )
+            , _react2.default.createElement('div', { className: "h-64",}
+              , chData.length > 0 ? _react2.default.createElement(_recharts.ResponsiveContainer, null
+                , cChart === 'bar' ? _react2.default.createElement(_recharts.BarChart, { data: chData,}, _react2.default.createElement(_recharts.CartesianGrid, { strokeDasharray: "3 3" , vertical: false,} ), _react2.default.createElement(_recharts.XAxis, { dataKey: "chapter",} ), _react2.default.createElement(_recharts.YAxis, { domain: [0,100],} ), _react2.default.createElement(_recharts.Tooltip, null ), _react2.default.createElement(_recharts.Bar, { dataKey: "score", fill: "#34d399", radius: [4,4,0,0],} ))
+                : _react2.default.createElement(_recharts.RadarChart, { data: chData,}, _react2.default.createElement(_recharts.PolarGrid, null ), _react2.default.createElement(_recharts.PolarAngleAxis, { dataKey: "chapter",} ), _react2.default.createElement(_recharts.PolarRadiusAxis, { domain: [0,100],} ), _react2.default.createElement(_recharts.Radar, { dataKey: "score", stroke: "#10b981", fill: "#34d399", fillOpacity: 0.6,} ), _react2.default.createElement(_recharts.Tooltip, null ))
+              ) : _react2.default.createElement('div', { className: "h-full flex items-center justify-center text-slate-400"    ,}, "Select a subject"  )
+            )
+          )
+        )
+      )
+    );
+
+    return (
+      _react2.default.createElement('div', { className: "p-6 max-w-5xl mx-auto"  ,}
+        , _react2.default.createElement('h2', { className: "text-2xl font-bold mb-6"  ,}, "Dashboard")
+        , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8"    ,}
+          , _react2.default.createElement('div', { className: "bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4"       ,}
+            , _react2.default.createElement('div', { className: "w-12 h-12 rounded-xl bg-orange-100 text-orange-500 flex items-center justify-center"       ,}, _react2.default.createElement(_lucidereact.Flame, { className: "w-6 h-6" ,} ))
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "text-slate-500 text-sm" ,}, "Study Streak" ), _react2.default.createElement('p', { className: "text-2xl font-bold" ,}, perf.streak, " Days" ))
+          )
+          , _react2.default.createElement('div', { className: "bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4"       ,}
+            , _react2.default.createElement('div', { className: "w-12 h-12 rounded-xl bg-rose-100 text-rose-500 flex items-center justify-center"       ,}, _react2.default.createElement(_lucidereact.Target, { className: "w-6 h-6" ,} ))
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "text-slate-500 text-sm" ,}, "Reinforcement Qs" ), _react2.default.createElement('p', { className: "text-2xl font-bold" ,}, reinf.length))
+          )
+          , _react2.default.createElement('div', { className: "bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4"       ,}
+            , _react2.default.createElement('div', { className: "w-12 h-12 rounded-xl bg-blue-100 text-blue-500 flex items-center justify-center"       ,}, _react2.default.createElement(_lucidereact.HardDrive, { className: "w-6 h-6" ,} ))
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "text-slate-500 text-sm" ,}, "Indexed Files" ), _react2.default.createElement('p', { className: "text-2xl font-bold" ,}, fileIndex.length))
+          )
+        )
+        , _react2.default.createElement('button', { onClick: () => setDashView('performance'), className: "mb-8 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-emerald-100"           ,}, _react2.default.createElement(_lucidereact.BarChart3, { className: "w-4 h-4" ,} ), " View Performance Charts"   )
+        , _react2.default.createElement('h3', { className: "text-lg font-bold mb-4 text-slate-700"   ,}, "Quick Actions" )
+        , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-4"   ,}
+          , _react2.default.createElement('button', { onClick: () => handleMergeCurriculum(false), disabled: isUpdating, className: "bg-white p-5 rounded-2xl shadow-sm border hover:border-indigo-300 transition-colors text-left flex items-center gap-4 disabled:opacity-50"           ,}
+            , _react2.default.createElement('div', { className: "w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center"       ,}, isUpdating ? _react2.default.createElement(_lucidereact.Loader2, { className: "w-6 h-6 animate-spin"  ,} ) : _react2.default.createElement(_lucidereact.RefreshCw, { className: "w-6 h-6" ,} ))
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "font-bold text-slate-800" ,}, "Update Curriculum" ), _react2.default.createElement('p', { className: "text-xs text-slate-500" ,}, "Merge pending CSV updates"   ))
+          )
+          , _react2.default.createElement('button', { onClick: handleBuildIndex, disabled: indexing, className: "bg-white p-5 rounded-2xl shadow-sm border hover:border-indigo-300 transition-colors text-left flex items-center gap-4 disabled:opacity-50"           ,}
+            , _react2.default.createElement('div', { className: "w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center"       ,}, indexing ? _react2.default.createElement(_lucidereact.Loader2, { className: "w-6 h-6 animate-spin"  ,} ) : _react2.default.createElement(_lucidereact.Search, { className: "w-6 h-6" ,} ))
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "font-bold text-slate-800" ,}, "Update Search Index"  ), _react2.default.createElement('p', { className: "text-xs text-slate-500" ,}, "Scan & index library files"    ))
+          )
+          , _react2.default.createElement('button', { onClick: handleAutoManage, disabled: isManaging, className: "bg-white p-5 rounded-2xl shadow-sm border hover:border-indigo-300 transition-colors text-left flex items-center gap-4 disabled:opacity-50"           ,}
+            , _react2.default.createElement('div', { className: "w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center"       ,}, isManaging ? _react2.default.createElement(_lucidereact.Loader2, { className: "w-6 h-6 animate-spin"  ,} ) : _react2.default.createElement(_lucidereact.FolderOpen, { className: "w-6 h-6" ,} ))
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "font-bold text-slate-800" ,}, "Auto-Manage Files" ), _react2.default.createElement('p', { className: "text-xs text-slate-500" ,}, waitFiles.length, " files waiting"  ))
+          )
+          , _react2.default.createElement('button', { onClick: () => setPage('csvgen'), className: "bg-white p-5 rounded-2xl shadow-sm border hover:border-indigo-300 transition-colors text-left flex items-center gap-4"          ,}
+            , _react2.default.createElement('div', { className: "w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center"       ,}, _react2.default.createElement(_lucidereact.Database, { className: "w-6 h-6" ,} ))
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "font-bold text-slate-800" ,}, "CSV Generate" ), _react2.default.createElement('p', { className: "text-xs text-slate-500" ,}, "Create course content"  ))
+          )
+        )
+      )
+    );
+  };
+
+  // ═══ LEARNING ADVENTURE ═══
+  const getSubIcon = s => { const l = s.toLowerCase(); if (l.includes('math')) return _react2.default.createElement('span', { className: "text-2xl",}, "🧮"); if (l.includes('sci')) return _react2.default.createElement('span', { className: "text-2xl",}, "🔬"); if (l.includes('chin') || l.includes('eng')) return _react2.default.createElement('span', { className: "text-2xl",}, "📖"); return _react2.default.createElement('span', { className: "text-2xl",}, "📚"); };
+  const getSubColor = s => { const l = s.toLowerCase(); if (l.includes('math')) return 'bg-blue-50 border-blue-200 hover:bg-blue-100'; if (l.includes('sci')) return 'bg-green-50 border-green-200 hover:bg-green-100'; return 'bg-purple-50 border-purple-200 hover:bg-purple-100'; };
+
+  const LearningAdventure = () => {
+    if (laView === 'subjects') return (
+      _react2.default.createElement('div', { className: "p-6 max-w-5xl mx-auto"  ,}
+        , _react2.default.createElement('div', { className: "flex items-center justify-between mb-6 flex-wrap gap-3"     ,}
+          , _react2.default.createElement('h2', { className: "text-2xl font-bold flex items-center gap-2"    ,}, _react2.default.createElement(_lucidereact.Sparkles, { className: "text-amber-400",} ), " Learning Adventure"  )
+          , _react2.default.createElement('button', { onClick: () => { setQMode('reinforcement'); startQuiz('reinforcement', null, null); }, disabled: reinf.length === 0, className: "px-4 py-2 bg-rose-50 text-rose-700 rounded-xl font-bold text-sm flex items-center gap-2 disabled:opacity-50"          ,}, _react2.default.createElement(_lucidereact.Target, { className: "w-4 h-4" ,} ), " Reinforcement ("  , reinf.length, ")")
+        )
+        , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"    ,}
+          , Object.keys(curriculum).map(sub => (
+            _react2.default.createElement('div', { key: sub, onClick: () => { setLaSub(sub); setLaView('chapters'); }, className: `p-6 rounded-2xl border-2 cursor-pointer transition-all hover:-translate-y-0.5 shadow-sm ${getSubColor(sub)}`,}
+              , _react2.default.createElement('div', { className: "mb-4",}, getSubIcon(sub))
+              , _react2.default.createElement('h3', { className: "text-xl font-bold text-slate-800 mb-1"   ,}, sub)
+              , _react2.default.createElement('p', { className: "text-slate-600 text-sm" ,}, Object.keys(curriculum[sub]).length, " Chapters" )
+            )
+          ))
+        )
+      )
+    );
+
+    if (laView === 'chapters') return (
+      _react2.default.createElement('div', { className: "p-6 max-w-4xl mx-auto"  ,}
+        , _react2.default.createElement('button', { onClick: () => setLaView('subjects'), className: "flex items-center gap-2 text-slate-500 hover:text-slate-800 mb-6"     ,}, _react2.default.createElement(_lucidereact.ArrowLeft, { className: "w-4 h-4" ,} ), " Back" )
+        , _react2.default.createElement('h2', { className: "text-2xl font-bold mb-6"  ,}, laSub)
+        , _react2.default.createElement('div', { className: "space-y-3",}
+          , Object.keys(curriculum[laSub]).sort((a,b)=>Number(a)-Number(b)).map(ch => (
+            _react2.default.createElement('div', { key: ch, onClick: () => { setLaCh(ch); setLaView('intro'); }, className: "bg-white p-5 rounded-2xl border shadow-sm hover:shadow-md cursor-pointer transition-shadow flex items-center gap-4"          ,}
+              , _react2.default.createElement('div', { className: "w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold shrink-0"         ,}, ch)
+              , _react2.default.createElement('div', { className: "flex-1 min-w-0" ,}
+                , _react2.default.createElement('h3', { className: "font-bold text-slate-800" ,}, "Ch " , ch, ": " , curriculum[laSub][ch].title)
+                , _react2.default.createElement('p', { className: "text-sm text-slate-500 truncate"  ,}, curriculum[laSub][ch].intro)
+              )
+              , _react2.default.createElement(_lucidereact.ChevronRight, { className: "w-5 h-5 text-slate-400 shrink-0"   ,} )
+            )
+          ))
+        )
+      )
+    );
+
+    if (laView === 'intro') { const cd = curriculum[laSub][laCh]; return (
+      _react2.default.createElement('div', { className: "p-6 flex items-center justify-center min-h-full"    ,}
+        , _react2.default.createElement('div', { className: "max-w-lg w-full bg-white rounded-2xl shadow-xl border overflow-hidden"      ,}
+          , _react2.default.createElement('div', { className: "bg-indigo-600 p-6 text-center"  ,}, _react2.default.createElement('p', { className: "text-indigo-200 text-sm" ,}, laSub, " • Chapter "   , laCh), _react2.default.createElement('h2', { className: "text-2xl font-bold text-white mt-1"   ,}, cd.title))
+          , _react2.default.createElement('div', { className: "p-6 text-center" ,}
+            , _react2.default.createElement('p', { className: "text-slate-600 mb-6" ,}, cd.intro)
+            , _react2.default.createElement('div', { className: "flex gap-3 justify-center"  ,}
+              , _react2.default.createElement('button', { onClick: () => setLaView('chapters'), className: "px-5 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200"      ,}, "Cancel")
+              , _react2.default.createElement('button', { onClick: () => startQuiz('normal', laSub, laCh), className: "px-6 py-2.5 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2"         ,}, _react2.default.createElement(_lucidereact.Play, { className: "w-4 h-4" ,} ), " Start" )
+            )
+          )
+        )
+      )
+    ); }
+
+    if (laView === 'results') {
+      const total = results.length, score = results.filter(r => r.ok).length, pct = total > 0 ? Math.round(score / total * 100) : 0;
+      const mistakes = results.filter(r => !r.ok);
+      return (
+        _react2.default.createElement('div', { className: "p-6 flex items-center justify-center min-h-full"    ,}
+          , _react2.default.createElement('div', { className: "max-w-sm w-full bg-white rounded-2xl shadow-xl border p-8 text-center"       ,}
+            , _react2.default.createElement('div', { className: "w-20 h-20 bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4"         ,}, _react2.default.createElement(_lucidereact.Medal, { className: "w-10 h-10" ,} ))
+            , _react2.default.createElement('h2', { className: "text-2xl font-bold mb-1"  ,}, qMode === 'reinforcement' ? 'Reinforcement' : 'Chapter', " Complete!" )
+            , _react2.default.createElement('div', { className: "bg-slate-50 rounded-xl p-4 my-4 border"    ,}, _react2.default.createElement('p', { className: "text-4xl font-black text-indigo-600"  ,}, score, _react2.default.createElement('span', { className: "text-xl text-slate-400" ,}, "/", total)), _react2.default.createElement('p', { className: "text-slate-500",}, pct, "%"))
+            , _react2.default.createElement('div', { className: "flex flex-col gap-2"  ,}
+              , mistakes.length > 0 && qMode !== 'revision' && _react2.default.createElement('button', { onClick: () => startQuiz('revision', laSub, laCh), className: "py-3 rounded-xl font-bold text-white bg-amber-500 hover:bg-amber-600 flex items-center justify-center gap-2"         ,}, _react2.default.createElement(_lucidereact.BookOpen, { className: "w-4 h-4" ,} ), " Revise ("  , mistakes.length, ")")
+              , (qMode === 'normal' || qMode === 'retry') && _react2.default.createElement('button', { onClick: () => startQuiz('retry', laSub, laCh), className: "py-3 rounded-xl font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 flex items-center justify-center gap-2"         ,}, _react2.default.createElement(_lucidereact.RotateCcw, { className: "w-4 h-4" ,} ), " Retry" )
+              , _react2.default.createElement('button', { onClick: () => setLaView('subjects'), className: "py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700"     ,}, "Back")
+            )
+          )
+        )
+      );
+    }
+
+    if (laView === 'quiz') {
+      const q = qQueue[qIdx]; if (!q) return null;
+      const type = (q['question types'] || '').toUpperCase();
+      const answered = fb !== null;
+      return (
+        _react2.default.createElement('div', { className: "p-4 max-w-2xl mx-auto"  ,}
+          , _react2.default.createElement('div', { className: "flex items-center justify-between mb-4"   ,}
+            , _react2.default.createElement('button', { onClick: () => setLaView('subjects'), className: "text-slate-400 hover:text-slate-600" ,}, _react2.default.createElement(_lucidereact.XCircle, { className: "w-7 h-7" ,} ))
+            , _react2.default.createElement('div', { className: "flex-1 mx-4" ,}, _react2.default.createElement('div', { className: "h-2 bg-slate-200 rounded-full overflow-hidden"   ,}, _react2.default.createElement('div', { className: "h-full bg-indigo-500 transition-all"  , style: { width: `${(qIdx / qQueue.length) * 100}%` },} ))
+              , _react2.default.createElement('p', { className: "text-xs text-center text-slate-400 mt-1"   ,}, "Q", qIdx + 1, "/", qQueue.length))
+            , _react2.default.createElement('div', { className: "bg-white px-3 py-1 rounded-full shadow-sm border font-bold text-indigo-600 text-sm"        ,}, results.filter(r => r.ok).length, " ✓" )
+          )
+          , _react2.default.createElement('div', { className: "bg-white rounded-2xl shadow-sm border p-6"    ,}
+            , qMode === 'reinforcement' && _react2.default.createElement('p', { className: "text-xs font-bold text-rose-500 mb-2"   ,}, q.subject, " • Ch "   , q['chapter number'])
+            , _react2.default.createElement('h3', { className: "text-xl font-bold text-slate-800 mb-6"   ,}, q.question)
+            , _react2.default.createElement(QuizRenderer, { q: q, type: type, answered: answered, onSubmit: submitAnswer,} )
+            , _react2.default.createElement('div', { className: "mt-6",}
+              , !answered && q.hints && _react2.default.createElement('div', { className: "mb-3",}
+                , _react2.default.createElement('button', { onClick: () => setHint(!hint), className: "text-amber-500 text-sm font-bold bg-amber-50 px-3 py-1.5 rounded-lg flex items-center gap-1"         ,}, _react2.default.createElement(_lucidereact.Lightbulb, { className: "w-4 h-4" ,} ), " " , hint ? 'Hide' : 'Show', " Hint" )
+                , hint && _react2.default.createElement('p', { className: "mt-2 p-3 bg-amber-50 text-amber-800 rounded-lg text-sm border border-amber-100"       ,}, q.hints)
+              )
+              , answered && _react2.default.createElement('div', { className: `p-4 rounded-xl mb-4 ${fb === 'correct' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`,}
+                , _react2.default.createElement('div', { className: "flex items-start gap-3"  ,}
+                  , fb === 'correct' ? _react2.default.createElement(_lucidereact.CheckCircle, { className: "w-6 h-6 text-green-600 shrink-0"   ,} ) : _react2.default.createElement(_lucidereact.XCircle, { className: "w-6 h-6 text-red-600 shrink-0"   ,} )
+                  , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "font-bold",}, fb === 'correct' ? 'Correct!' : 'Not quite right.')
+                    , fb !== 'correct' && _react2.default.createElement('p', { className: "mt-1 text-sm" ,}, "Correct: " , _react2.default.createElement('strong', null, formatAnswer(q, type)))
+                  )
+                )
+                , fb !== 'correct' && q.explanation && _react2.default.createElement('div', { className: "mt-3 p-3 bg-white/60 rounded-lg border text-sm"     ,}, _react2.default.createElement('strong', { className: "flex items-center gap-1 mb-1"   ,}, _react2.default.createElement(_lucidereact.Info, { className: "w-3 h-3" ,} ), " Why?" ), _react2.default.createElement('p', null, q.explanation))
+              )
+              , answered && _react2.default.createElement('button', { onClick: nextQ, className: "w-full py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700"      ,}, qIdx + 1 === qQueue.length ? 'See Results' : 'Next')
+            )
+          )
+        )
+      );
+    }
+    return null;
+  };
+
+  // ═══ KNOWLEDGE SEARCHER ═══
+  const KnowledgeSearcher = () => {
+    if (ksView === 'manage') return (
+      _react2.default.createElement('div', { className: "p-6 max-w-3xl mx-auto"  ,}
+        , _react2.default.createElement('button', { onClick: () => setKsView('search'), className: "flex items-center gap-2 text-slate-500 hover:text-slate-800 mb-6"     ,}, _react2.default.createElement(_lucidereact.ArrowLeft, { className: "w-4 h-4" ,} ), " Back to Search"   )
+        , _react2.default.createElement('div', { className: "bg-white rounded-2xl shadow-sm border p-8 text-center"     ,}
+          , _react2.default.createElement(_lucidereact.Search, { className: "w-12 h-12 text-blue-400 mx-auto mb-4"    ,} )
+          , _react2.default.createElement('h2', { className: "text-2xl font-bold mb-2"  ,}, "Library Index" )
+          , _react2.default.createElement('p', { className: "text-slate-500 mb-6" ,}, fileIndex.length, " files indexed"  )
+          , _react2.default.createElement('button', { onClick: handleBuildIndex, disabled: indexing, className: "px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 mx-auto"           ,}
+            , indexing ? _react2.default.createElement(_react2.default.Fragment, null, _react2.default.createElement(_lucidereact.Loader2, { className: "w-5 h-5 animate-spin"  ,} ), " Indexing..." ) : _react2.default.createElement(_react2.default.Fragment, null, _react2.default.createElement(_lucidereact.Play, { className: "w-5 h-5" ,} ), " " , settings.indexMode === 'update' ? 'Update' : 'Rebuild', " Index" )
+          )
+          , indexing && _react2.default.createElement('div', { className: "mt-4",}, _react2.default.createElement('div', { className: "h-2 bg-slate-200 rounded-full overflow-hidden"   ,}, _react2.default.createElement('div', { className: "h-full bg-blue-500 transition-all"  , style: { width: `${idxProg.total > 0 ? Math.round(idxProg.current / idxProg.total * 100) : 0}%` },} ))
+            , _react2.default.createElement('p', { className: "text-xs text-slate-500 mt-2"  ,}, idxProg.current, "/", idxProg.total, " — AI calls: "    , idxProg.ai), _react2.default.createElement('p', { className: "text-xs text-slate-500 truncate"  ,}, idxProg.name))
+        )
+      )
+    );
+
+    const toggleFil = (k, v) => setFil(p => { const a = p[k]; return { ...p, [k]: a.includes(v) ? a.filter(x => x !== v) : [...a, v] }; });
+
+    const handleExport = () => {
+      const sel = filteredIdx.filter(f => selIds.has(f.id));
+      if (!sel.length) { notify('Select files first', 'error'); return; }
+      let txt = `KnowledgeSearcher Export\n${new Date().toLocaleString()}\n${'='.repeat(40)}\n\n`;
+      sel.forEach((f, i) => { txt += `[${i+1}] ${f.name}\nPath: ${f.path}\nType: ${f.type} | ${formatBytes(f.size)}\nAuthor: ${f.author}\nTags: ${(f.tags||[]).join(', ')}\nSummary: ${f.summary}\n${'—'.repeat(30)}\n\n`; });
+      const b = new Blob([txt], { type: 'text/plain' }); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'search_export.txt'; a.click(); URL.revokeObjectURL(u);
+    };
+
+    return (
+      _react2.default.createElement('div', { className: "flex flex-col h-full"  ,}
+        , _react2.default.createElement('div', { className: "bg-white border-b p-3 flex items-center gap-2 shrink-0"      ,}
+          , _react2.default.createElement('div', { className: "relative flex-1" ,}, _react2.default.createElement(_lucidereact.Search, { className: "absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"      ,} ), _react2.default.createElement('input', { placeholder: "Search files..." , value: sq, onChange: e => setSq(e.target.value), className: "w-full pl-9 pr-3 py-2.5 bg-slate-50 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"          ,} ))
+          , _react2.default.createElement('button', { onClick: () => setSf(!sf), className: `p-2.5 rounded-xl border ${sf ? 'bg-blue-50 border-blue-200 text-blue-600' : 'text-slate-500'}`,}, _react2.default.createElement(_lucidereact.Filter, { className: "w-4 h-4" ,} ))
+          , _react2.default.createElement('button', { onClick: () => setKsView('manage'), className: "p-2.5 rounded-xl border text-slate-500 hover:bg-slate-50"    ,}, _react2.default.createElement(_lucidereact.Database, { className: "w-4 h-4" ,} ))
+        )
+        , _react2.default.createElement('div', { className: "flex flex-1 overflow-hidden"  ,}
+          , sf && _react2.default.createElement('div', { className: "w-64 border-r bg-slate-50 p-4 overflow-y-auto shrink-0 space-y-4"      ,}
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "text-xs font-bold text-slate-500 mb-2"   ,}, "Types"), _react2.default.createElement('div', { className: "flex flex-wrap gap-1"  ,}, avTypes.map(t => _react2.default.createElement('button', { key: t, onClick: () => toggleFil('types', t), className: `px-2 py-0.5 text-xs rounded-full border ${fil.types.includes(t) ? 'bg-blue-600 text-white' : 'bg-white text-slate-600'}`,}, t))))
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "text-xs font-bold text-slate-500 mb-2"   ,}, "Authors"), _react2.default.createElement('div', { className: "flex flex-wrap gap-1"  ,}, avAuthors.map(a => _react2.default.createElement('button', { key: a, onClick: () => toggleFil('authors', a), className: `px-2 py-0.5 text-xs rounded-full border ${fil.authors.includes(a) ? 'bg-purple-600 text-white' : 'bg-white text-slate-600'}`,}, a))))
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "text-xs font-bold text-slate-500 mb-2"   ,}, "Tags"), _react2.default.createElement('div', { className: "flex flex-wrap gap-1"  ,}, avTags.map(t => _react2.default.createElement('button', { key: t, onClick: () => toggleFil('tags', t), className: `px-2 py-0.5 text-xs rounded-full border ${fil.tags.includes(t) ? 'bg-green-600 text-white' : 'bg-white text-slate-600'}`,}, t))))
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "text-xs font-bold text-slate-500 mb-2"   ,}, "Size (MB)" ), _react2.default.createElement('div', { className: "flex gap-1" ,}, _react2.default.createElement('input', { type: "number", placeholder: "Min", value: fil.minSize, onChange: e => setFil({...fil, minSize: e.target.value}), className: "w-full p-1.5 text-xs border rounded"    ,} ), _react2.default.createElement('input', { type: "number", placeholder: "Max", value: fil.maxSize, onChange: e => setFil({...fil, maxSize: e.target.value}), className: "w-full p-1.5 text-xs border rounded"    ,} )))
+            , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "text-xs font-bold text-slate-500 mb-2"   ,}, "Date"), _react2.default.createElement('input', { type: "date", value: fil.dateFrom, onChange: e => setFil({...fil, dateFrom: e.target.value}), className: "w-full p-1.5 text-xs border rounded mb-1"     ,} ), _react2.default.createElement('input', { type: "date", value: fil.dateTo, onChange: e => setFil({...fil, dateTo: e.target.value}), className: "w-full p-1.5 text-xs border rounded"    ,} ))
+          )
+          , _react2.default.createElement('div', { className: "flex-1 overflow-y-auto p-4 bg-slate-50"   ,}
+            , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3 bg-white p-3 rounded-xl border"       ,}
+              , _react2.default.createElement('div', { className: "flex items-center gap-3"  ,}
+                , _react2.default.createElement('button', { onClick: () => { const ids = filteredIdx.map(f => f.id); const all = ids.every(id => selIds.has(id)); setSelIds(p => { const n = new Set(p); ids.forEach(id => all ? n.delete(id) : n.add(id)); return n; }); }, className: "text-sm text-slate-600 flex items-center gap-1"    ,}
+                  , filteredIdx.length > 0 && filteredIdx.every(f => selIds.has(f.id)) ? _react2.default.createElement(_lucidereact.CheckSquare, { className: "w-4 h-4 text-blue-600"  ,} ) : _react2.default.createElement(_lucidereact.Square, { className: "w-4 h-4" ,} ), " All"
+                )
+                , _react2.default.createElement('span', { className: "text-xs text-slate-500" ,}, filteredIdx.length, " results" )
+              )
+              , _react2.default.createElement('button', { onClick: handleExport, disabled: !filteredIdx.some(f => selIds.has(f.id)), className: "text-xs px-3 py-1.5 bg-blue-600 text-white rounded-lg font-medium disabled:opacity-40 flex items-center gap-1"          ,}, _react2.default.createElement(_lucidereact.Download, { className: "w-3 h-3" ,} ), " Export" )
+            )
+            , _react2.default.createElement('div', { className: "space-y-3",}
+              , filteredIdx.map(f => (
+                _react2.default.createElement('div', { key: f.id, className: `bg-white rounded-xl p-4 border shadow-sm ${selIds.has(f.id) ? 'border-blue-400 ring-1 ring-blue-400' : ''}`,}
+                  , _react2.default.createElement('div', { className: "flex items-start gap-3"  ,}
+                    , _react2.default.createElement('button', { onClick: () => setSelIds(p => { const n = new Set(p); n.has(f.id) ? n.delete(f.id) : n.add(f.id); return n; }), className: "shrink-0 mt-1" ,}, selIds.has(f.id) ? _react2.default.createElement(_lucidereact.CheckSquare, { className: "w-5 h-5 text-blue-600"  ,} ) : _react2.default.createElement(_lucidereact.Square, { className: "w-5 h-5 text-slate-300"  ,} ))
+                    , _react2.default.createElement('div', { className: "flex-1 min-w-0" ,}
+                      , _react2.default.createElement('div', { className: "flex items-center justify-between gap-2 mb-1"    ,}
+                        , _react2.default.createElement('h4', { className: "font-bold text-slate-800 truncate text-sm"   ,}, f.name)
+                        , _react2.default.createElement('div', { className: "flex items-center gap-1 shrink-0"   ,}, _react2.default.createElement('span', { className: "text-xs bg-slate-100 px-1.5 py-0.5 rounded"    ,}, f.type), _react2.default.createElement('span', { className: "text-xs text-slate-400" ,}, formatBytes(f.size)))
+                      )
+                      , _react2.default.createElement('p', { className: "text-xs text-slate-500 truncate mb-2"   ,}, f.path)
+                      , _react2.default.createElement('p', { className: "text-sm text-slate-600 line-clamp-2 bg-slate-50 p-2 rounded-lg border"      ,}, f.summary)
+                      , _react2.default.createElement('div', { className: "flex flex-wrap gap-1 mt-2"   ,}
+                        , f.author && f.author !== 'Unknown' && _react2.default.createElement('span', { className: "text-xs text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100"       ,}, f.author)
+                        , (f.tags||[]).map((t,i) => _react2.default.createElement('span', { key: i, className: "text-xs text-green-700 bg-green-50 px-1.5 py-0.5 rounded border border-green-100"       ,}, t))
+                      )
+                    )
+                  )
+                )
+              ))
+              , filteredIdx.length === 0 && _react2.default.createElement('div', { className: "text-center py-12 text-slate-400"  ,}, _react2.default.createElement(_lucidereact.Search, { className: "w-10 h-10 mx-auto mb-2"   ,} ), _react2.default.createElement('p', null, "No files found"  ))
+            )
+          )
+        )
+      )
+    );
+  };
+
+  // ═══ FILE MANAGER ═══
+  const FileManager = () => (
+    _react2.default.createElement('div', { className: "flex h-full" ,}
+      , _react2.default.createElement('div', { className: "w-48 bg-white border-r p-3 space-y-1 shrink-0"     ,}
+        , [['library','Library',_lucidereact.Folder],['generate','AI Structure',_lucidereact.Edit3],['auto','Auto Manage',_lucidereact.Play]].map(([id,lbl,Icon]) => (
+          _react2.default.createElement('button', { key: id, onClick: () => setFmView(id), className: `w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${fmView === id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600 hover:bg-slate-50'}`,}, _react2.default.createElement(Icon, { className: "w-4 h-4" ,} ), lbl)
+        ))
+      )
+      , _react2.default.createElement('div', { className: "flex-1 p-6 overflow-y-auto"  ,}
+        , fmStatus && _react2.default.createElement('div', { className: "mb-4 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm flex items-center gap-2"        ,}, _react2.default.createElement(_lucidereact.AlertCircle, { className: "w-4 h-4" ,} ), fmStatus)
+        , fmView === 'library' && _react2.default.createElement('div', null
+          , _react2.default.createElement('h3', { className: "text-xl font-bold mb-4"  ,}, "Library Overview" )
+          , _react2.default.createElement('div', { className: "grid grid-cols-1 lg:grid-cols-2 gap-6"   ,}
+            , _react2.default.createElement('div', null, _react2.default.createElement('h4', { className: "font-bold text-sm text-slate-600 mb-2"   ,}, "Folder Structure" ), _react2.default.createElement('pre', { className: "bg-slate-50 p-4 rounded-xl border text-xs overflow-auto max-h-80"      ,}, JSON.stringify(folderStruct, null, 2) || 'No structure generated yet.'))
+            , _react2.default.createElement('div', null, _react2.default.createElement('h4', { className: "font-bold text-sm text-slate-600 mb-2 flex items-center justify-between"      ,}, "Waiting Files ("  , waitFiles.length, ") " , _react2.default.createElement('button', { onClick: () => dirs && loadWaitFiles(dirs.wait), className: "text-blue-500",}, _react2.default.createElement(_lucidereact.RefreshCw, { className: "w-3 h-3" ,} )))
+              , _react2.default.createElement('div', { className: "space-y-1 max-h-80 overflow-y-auto"  ,}, waitFiles.map((f,i) => _react2.default.createElement('div', { key: i, className: "flex items-center gap-2 p-2 bg-slate-50 rounded-lg border text-sm"       ,}, _react2.default.createElement(_lucidereact.File, { className: "w-4 h-4 text-slate-400"  ,} ), _react2.default.createElement('span', { className: "flex-1 truncate" ,}, f.name), _react2.default.createElement('span', { className: "text-xs text-slate-400" ,}, (f.size/1024).toFixed(1), "KB")))
+                , waitFiles.length === 0 && _react2.default.createElement('p', { className: "text-sm text-slate-400 italic"  ,}, "No files waiting."  ))
+            )
+          )
+        )
+        , fmView === 'generate' && _react2.default.createElement('div', { className: "max-w-lg",}
+          , _react2.default.createElement('h3', { className: "text-xl font-bold mb-4"  ,}, "Generate Folder Structure"  )
+          , _react2.default.createElement('div', { className: "space-y-3",}
+            , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-sm font-medium text-slate-700"  ,}, "Job / Profession"  ), _react2.default.createElement('input', { value: aiForm.job, onChange: e => setAiForm({...aiForm, job: e.target.value}), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+            , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-sm font-medium text-slate-700"  ,}, "Hobbies"), _react2.default.createElement('input', { value: aiForm.hobbies, onChange: e => setAiForm({...aiForm, hobbies: e.target.value}), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+            , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-sm font-medium text-slate-700"  ,}, "Language"), _react2.default.createElement('input', { value: aiForm.language, onChange: e => setAiForm({...aiForm, language: e.target.value}), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+            , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-sm font-medium text-slate-700"  ,}, "Custom Requirements" ), _react2.default.createElement('textarea', { value: aiForm.custom, onChange: e => setAiForm({...aiForm, custom: e.target.value}), className: "w-full p-2 border rounded-lg mt-1"    , rows: 3,} ))
+            , _react2.default.createElement('button', { onClick: genFolderStruct, className: "bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 flex items-center gap-2"         ,}, _react2.default.createElement(_lucidereact.CheckCircle, { className: "w-4 h-4" ,} ), " Generate & Save"   )
+          )
+        )
+        , fmView === 'auto' && _react2.default.createElement('div', { className: "text-center max-w-lg mx-auto"  ,}
+          , _react2.default.createElement('h3', { className: "text-xl font-bold mb-4"  ,}, "Auto File Management"  )
+          , _react2.default.createElement('p', { className: "text-slate-600 mb-6" ,}, "AI will categorize "   , waitFiles.length, " files from Wait_to_Manage_File into your library."      )
+          , _react2.default.createElement('button', { onClick: handleAutoManage, disabled: isManaging || waitFiles.length === 0, className: "px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:opacity-40 flex items-center gap-2 mx-auto"           ,}, isManaging ? _react2.default.createElement(_lucidereact.Loader2, { className: "w-5 h-5 animate-spin"  ,} ) : _react2.default.createElement(_lucidereact.Play, { className: "w-5 h-5" ,} ), " Start" )
+        )
+      )
+    )
+  );
+
+  // ═══ REVISION NOTES ═══
+  const RevisionNotes = () => (
+    _react2.default.createElement('div', { className: "flex h-full" ,}
+      , _react2.default.createElement('div', { className: "w-72 bg-white border-r flex flex-col shrink-0"     ,}
+        , _react2.default.createElement('div', { className: "p-4 border-b space-y-2"  ,}
+          , _react2.default.createElement('h3', { className: "font-bold text-slate-800 text-sm"  ,}, "Generate Notes" )
+          , ['daily','weekly','monthly'].map(t => (
+            _react2.default.createElement('button', { key: t, onClick: () => generateNote(t), disabled: genNote, className: "w-full py-2 rounded-lg font-bold text-sm bg-indigo-50 text-indigo-700 hover:bg-indigo-100 disabled:opacity-40 flex items-center justify-center gap-2"            ,}
+              , genNote ? _react2.default.createElement(_lucidereact.Loader2, { className: "w-4 h-4 animate-spin"  ,} ) : _react2.default.createElement(_lucidereact.FileText, { className: "w-4 h-4" ,} ), " " , t.charAt(0).toUpperCase() + t.slice(1)
+            )
+          ))
+        )
+        , _react2.default.createElement('div', { className: "flex-1 overflow-y-auto p-3 space-y-1"   ,}
+          , _react2.default.createElement('p', { className: "text-xs font-bold text-slate-500 mb-2"   ,}, "Previous Notes" )
+          , notes.map((n, i) => (
+            _react2.default.createElement('button', { key: i, onClick: async () => { setSelNote(n.name); const text = await readText(n.handle); setNoteContent(text); },
+              className: `w-full text-left p-2.5 rounded-lg text-sm transition-colors ${selNote === n.name ? 'bg-indigo-100 text-indigo-800 font-bold' : 'text-slate-600 hover:bg-slate-50'}`,}
+              , _react2.default.createElement('p', { className: "truncate font-medium" ,}, n.name)
+              , _react2.default.createElement('p', { className: "text-xs text-slate-400" ,}, new Date(n.date).toLocaleDateString())
+            )
+          ))
+          , notes.length === 0 && _react2.default.createElement('p', { className: "text-xs text-slate-400 italic p-2"   ,}, "No notes yet."  )
+        )
+      )
+      , _react2.default.createElement('div', { className: "flex-1 overflow-y-auto bg-white p-8"   ,}
+        , noteContent ? _react2.default.createElement('div', { className: "max-w-3xl mx-auto prose"  , dangerouslySetInnerHTML: { __html: renderMd(noteContent) },} )
+        : _react2.default.createElement('div', { className: "h-full flex items-center justify-center text-slate-400"    ,}, _react2.default.createElement('div', { className: "text-center",}, _react2.default.createElement(_lucidereact.BookMarked, { className: "w-12 h-12 mx-auto mb-3"   ,} ), _react2.default.createElement('p', null, "Select a note to read"    )))
+      )
+    )
+  );
+
+  // ═══ CSV GENERATOR ═══
+  const CSVGenerator = () => {
+    const existingCourses = Object.keys(curriculum);
+    const isExisting = existingCourses.includes(csvGoals.subject);
+
+    const libFiltered = fileIndex.filter(f => {
+      if (csvGoals.libSearch) { const q = csvGoals.libSearch.toLowerCase(); if (!f.name.toLowerCase().includes(q) && !(f.tags||[]).some(t => t.toLowerCase().includes(q))) return false; }
+      return true;
+    });
+
+    if (csvStep === 1) return (
+      _react2.default.createElement('div', { className: "p-6 max-w-2xl mx-auto"  ,}
+        , _react2.default.createElement('h2', { className: "text-xl font-bold mb-4"  ,}, "CSV Generator — Course Setup"    )
+        , isExisting && _react2.default.createElement('div', { className: "p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800 mb-4 flex items-center gap-2"          ,}, _react2.default.createElement(_lucidereact.AlertCircle, { className: "w-4 h-4" ,} ), " Course \""  , csvGoals.subject, "\" exists ("  , Object.keys(curriculum[csvGoals.subject]).length, " chapters). New chapters will auto-increment."     )
+        , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-3"   ,}
+          , _react2.default.createElement('div', { className: "sm:col-span-2",}, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Subject *" ), _react2.default.createElement('input', { value: csvGoals.subject, onChange: e => setCsvGoals({...csvGoals, subject: e.target.value}), className: "w-full p-2 border rounded-lg mt-1"    , placeholder: "e.g. Mathematics" , list: "existing-subjects",} ), _react2.default.createElement('datalist', { id: "existing-subjects",}, existingCourses.map(s => _react2.default.createElement('option', { key: s, value: s,} ))))
+          , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Language"), _react2.default.createElement('select', { value: csvGoals.language, onChange: e => setCsvGoals({...csvGoals, language: e.target.value}), className: "w-full p-2 border rounded-lg mt-1"    ,}, 'English,Chinese (Simplified),Chinese (Traditional),Japanese,Korean,Spanish,French'.split(',').map(l => _react2.default.createElement('option', { key: l,}, l))))
+          , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Level"), _react2.default.createElement('select', { value: csvGoals.level, onChange: e => setCsvGoals({...csvGoals, level: e.target.value}), className: "w-full p-2 border rounded-lg mt-1"    ,}, CONTENT_LEVELS.map(l => _react2.default.createElement('option', { key: l.id, value: l.id,}, l.label))))
+          , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Chapters"), _react2.default.createElement('input', { type: "number", min: 1, max: 30, value: csvGoals.numChapters, onChange: e => setCsvGoals({...csvGoals, numChapters: Math.max(1, parseInt(e.target.value) || 1)}), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+          , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Qs / Chapter"  ), _react2.default.createElement('input', { type: "number", min: 1, max: 20, value: csvGoals.questionsPerChapter, onChange: e => setCsvGoals({...csvGoals, questionsPerChapter: Math.max(1, parseInt(e.target.value) || 1)}), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+          , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "API Delay (sec)"  ), _react2.default.createElement('input', { type: "number", min: 0, step: 0.5, value: csvGoals.apiDelay, onChange: e => setCsvGoals({...csvGoals, apiDelay: parseFloat(e.target.value) || 0}), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+          , _react2.default.createElement('div', { className: "sm:col-span-2",}, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Requirements (optional)" ), _react2.default.createElement('textarea', { value: csvGoals.additionalRequirements, onChange: e => setCsvGoals({...csvGoals, additionalRequirements: e.target.value}), className: "w-full p-2 border rounded-lg mt-1"    , rows: 2,} ))
+        )
+        , _react2.default.createElement('div', { className: "flex justify-end mt-4"  ,}
+          , _react2.default.createElement('button', { onClick: () => { if (csvGoals.subject.trim()) setCsvStep(2); else notify('Subject required', 'error'); }, className: "px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 flex items-center gap-2"         ,}, "Continue " , _react2.default.createElement(_lucidereact.ChevronRight, { className: "w-4 h-4" ,} ))
+        )
+      )
+    );
+
+    if (csvStep === 2) return (
+      _react2.default.createElement('div', { className: "p-6 max-w-2xl mx-auto"  ,}
+        , _react2.default.createElement('h2', { className: "text-xl font-bold mb-4"  ,}, "Upload Outline / Schedule"   )
+        , _react2.default.createElement('p', { className: "text-sm text-slate-500 mb-4"  ,}, "Optional: Upload course outlines or select from your library"        )
+        , _react2.default.createElement('div', { className: "border-2 border-dashed rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 mb-4"       , onClick: () => _optionalChain([document, 'access', _6 => _6.getElementById, 'call', _7 => _7('outline-input'), 'optionalAccess', _8 => _8.click, 'call', _9 => _9()]),}
+          , _react2.default.createElement(_lucidereact.Upload, { className: "w-8 h-8 mx-auto mb-2 text-slate-400"    ,} ), _react2.default.createElement('p', { className: "text-sm text-slate-500" ,}, "Click to upload files"   )
+          , _react2.default.createElement('input', { id: "outline-input", type: "file", multiple: true, className: "hidden", onChange: e => setOutFiles(p => [...p, ...Array.from(e.target.files)]),} )
+        )
+        , outFiles.length > 0 && _react2.default.createElement('div', { className: "space-y-1 mb-4" ,}, outFiles.map((f, i) => _react2.default.createElement('div', { key: i, className: "flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2 text-sm"       ,}, _react2.default.createElement(_lucidereact.FileText, { className: "w-4 h-4 text-blue-500"  ,} ), _react2.default.createElement('span', { className: "flex-1 truncate" ,}, f.name), _react2.default.createElement('button', { onClick: () => setOutFiles(p => p.filter((_,j) => j !== i)), className: "text-slate-400 hover:text-red-500" ,}, _react2.default.createElement(_lucidereact.X, { className: "w-3 h-3" ,} )))))
+        , fileIndex.length > 0 && _react2.default.createElement('div', { className: "border rounded-xl p-4"  ,}
+          , _react2.default.createElement('p', { className: "text-sm font-bold text-slate-700 mb-2"   ,}, "Or select from Library ("    , fileIndex.length, " files)" )
+          , _react2.default.createElement('input', { placeholder: "Search library..." , value: csvGoals.libSearch || '', onChange: e => setCsvGoals({...csvGoals, libSearch: e.target.value}), className: "w-full p-2 border rounded-lg text-sm mb-2"     ,} )
+          , _react2.default.createElement('div', { className: "max-h-40 overflow-y-auto space-y-1"  ,}, libFiltered.slice(0, 20).map(f => {
+            const sel = selLibFiles.some(s => s.id === f.id);
+            return _react2.default.createElement('button', { key: f.id, onClick: () => setSelLibFiles(p => sel ? p.filter(x => x.id !== f.id) : [...p, f]), className: `w-full text-left p-2 rounded-lg text-xs flex items-center gap-2 ${sel ? 'bg-blue-50 border-blue-200 border' : 'hover:bg-slate-50 border border-transparent'}`,}
+              , sel ? _react2.default.createElement(_lucidereact.CheckSquare, { className: "w-4 h-4 text-blue-600"  ,} ) : _react2.default.createElement(_lucidereact.Square, { className: "w-4 h-4 text-slate-300"  ,} )
+              , _react2.default.createElement('span', { className: "truncate flex-1" ,}, f.name), _react2.default.createElement('span', { className: "text-slate-400",}, f.type)
+            );
+          }))
+        )
+        , _react2.default.createElement('div', { className: "flex justify-between mt-4"  ,}
+          , _react2.default.createElement('button', { onClick: () => setCsvStep(1), className: "px-5 py-2.5 border text-slate-600 rounded-lg font-medium hover:bg-slate-50 flex items-center gap-2"         ,}, _react2.default.createElement(_lucidereact.ChevronLeft, { className: "w-4 h-4" ,} ), " Back" )
+          , _react2.default.createElement('button', { onClick: () => setCsvStep(3), className: "px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 flex items-center gap-2"         ,}, outFiles.length || selLibFiles.length ? 'Continue' : 'Skip', " " , _react2.default.createElement(_lucidereact.ChevronRight, { className: "w-4 h-4" ,} ))
+        )
+      )
+    );
+
+    if (csvStep === 3) return (
+      _react2.default.createElement('div', { className: "p-6 max-w-2xl mx-auto"  ,}
+        , _react2.default.createElement('h2', { className: "text-xl font-bold mb-4"  ,}, "Generate Learning Path"  )
+        , chapters.length === 0 ? _react2.default.createElement('div', { className: "border-2 border-dashed rounded-2xl p-10 text-center"    ,}
+          , _react2.default.createElement(_lucidereact.Brain, { className: "w-10 h-10 mx-auto mb-3 text-slate-300"    ,} )
+          , _react2.default.createElement('button', { onClick: genPath, disabled: csvRun, className: "px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 mx-auto"           ,}, csvRun ? _react2.default.createElement(_lucidereact.Loader2, { className: "w-4 h-4 animate-spin"  ,} ) : _react2.default.createElement(_lucidereact.Zap, { className: "w-4 h-4" ,} ), " Generate Path"  )
+        ) : _react2.default.createElement('div', null
+          , _react2.default.createElement('div', { className: "flex items-center justify-between mb-3"   ,}
+            , _react2.default.createElement('p', { className: "text-sm text-slate-600 font-medium"  ,}, chapters.length, " chapters" )
+            , _react2.default.createElement('div', { className: "flex gap-2" ,}, _react2.default.createElement('button', { onClick: genPath, disabled: csvRun, className: "text-xs px-3 py-1.5 border rounded-lg text-slate-600 hover:bg-slate-50"      ,}, _react2.default.createElement(_lucidereact.RefreshCw, { className: "w-3 h-3 inline mr-1"   ,} ), "Regen"), _react2.default.createElement('button', { onClick: () => setChapters(p => [...p, { number: p.length + 1, title: `Chapter ${p.length + 1}`, description: '' }]), className: "text-xs px-3 py-1.5 bg-green-50 border border-green-300 rounded-lg text-green-700"       ,}, _react2.default.createElement(_lucidereact.Plus, { className: "w-3 h-3 inline mr-1"   ,} ), "Add"))
+          )
+          , _react2.default.createElement('div', { className: "space-y-2 max-h-64 overflow-y-auto"  ,}, chapters.map((ch, i) => (
+            _react2.default.createElement('div', { key: i, className: "bg-white border rounded-xl p-3 flex items-center gap-3"      ,}
+              , _react2.default.createElement('span', { className: "w-7 h-7 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center shrink-0"          ,}, ch.number)
+              , _react2.default.createElement('div', { className: "flex-1 min-w-0" ,}, _react2.default.createElement('p', { className: "text-sm font-bold text-slate-800 truncate"   ,}, ch.title), _react2.default.createElement('p', { className: "text-xs text-slate-500 truncate"  ,}, ch.description))
+              , _react2.default.createElement('button', { onClick: () => setChapters(p => p.filter((_,j) => j !== i).map((c,j) => ({...c, number: j+1}))), className: "p-1 text-slate-400 hover:text-red-500"  ,}, _react2.default.createElement(_lucidereact.Trash2, { className: "w-3 h-3" ,} ))
+            )
+          )))
+        )
+        , _react2.default.createElement('div', { className: "flex justify-between mt-4"  ,}
+          , _react2.default.createElement('button', { onClick: () => setCsvStep(2), className: "px-5 py-2.5 border text-slate-600 rounded-lg font-medium hover:bg-slate-50 flex items-center gap-2"         ,}, _react2.default.createElement(_lucidereact.ChevronLeft, { className: "w-4 h-4" ,} ), " Back" )
+          , _react2.default.createElement('button', { onClick: () => setCsvStep(4), disabled: !chapters.length, className: "px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"          ,}, "Continue " , _react2.default.createElement(_lucidereact.ChevronRight, { className: "w-4 h-4" ,} ))
+        )
+      )
+    );
+
+    if (csvStep === 4) return (
+      _react2.default.createElement('div', { className: "p-6 max-w-2xl mx-auto"  ,}
+        , _react2.default.createElement('h2', { className: "text-xl font-bold mb-4"  ,}, "Generate CSV" )
+        , _react2.default.createElement('p', { className: "text-sm text-slate-500 mb-4"  ,}, chapters.length, " chapters × "   , csvGoals.questionsPerChapter, " questions" )
+        , !csvOut && !csvRun && _react2.default.createElement('button', { onClick: genCSV, className: "mx-auto px-8 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 flex items-center gap-2"          ,}, _react2.default.createElement(_lucidereact.Play, { className: "w-5 h-5" ,} ), " Generate Now"  )
+        , csvRun && _react2.default.createElement('div', { className: "mb-4",}, _react2.default.createElement('div', { className: "h-2 bg-slate-200 rounded-full overflow-hidden"   ,}, _react2.default.createElement('div', { className: "h-full bg-blue-500 transition-all"  , style: { width: `${csvProg}%` },} )), _react2.default.createElement('p', { className: "text-xs text-slate-500 mt-1 text-center"   ,}, csvProg, "%"))
+        , csvLogs.length > 0 && _react2.default.createElement('div', { className: "bg-slate-900 rounded-xl p-3 max-h-32 overflow-y-auto mb-4"     ,}, csvLogs.map((l,i) => _react2.default.createElement('p', { key: i, className: `text-xs font-mono ${l.includes('✓') ? 'text-green-400' : l.includes('✗') ? 'text-red-400' : 'text-slate-400'}`,}, l)))
+        , csvOut && _react2.default.createElement('div', null
+          , _react2.default.createElement('div', { className: "bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-2 mb-4"        ,}, _react2.default.createElement(_lucidereact.CheckCircle, { className: "w-5 h-5 text-green-600"  ,} ), _react2.default.createElement('p', { className: "text-sm font-bold text-green-800"  ,}, "CSV Generated! Saved to Pending_Updates."    ))
+          , _react2.default.createElement('div', { className: "flex gap-2 mb-4"  ,}
+            , _react2.default.createElement('button', { onClick: () => { const b = new Blob([csvOut], { type: 'text/csv' }); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = `${csvGoals.subject}_study.csv`; a.click(); }, className: "flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-bold flex items-center justify-center gap-2"         ,}, _react2.default.createElement(_lucidereact.Download, { className: "w-4 h-4" ,} ), " Download" )
+            , _react2.default.createElement('button', { onClick: () => navigator.clipboard.writeText(csvOut).then(() => notify('Copied!', 'success')), className: "flex-1 py-2.5 border rounded-lg font-bold text-slate-700 flex items-center justify-center gap-2"         ,}, _react2.default.createElement(_lucidereact.Copy, { className: "w-4 h-4" ,} ), " Copy" )
+          )
+          , _react2.default.createElement('pre', { className: "bg-slate-50 p-3 rounded-xl border text-xs overflow-auto max-h-32"      ,}, csvOut.substring(0, 1500), csvOut.length > 1500 ? '\n...' : '')
+        )
+        , _react2.default.createElement('div', { className: "flex justify-between mt-4"  ,}
+          , _react2.default.createElement('button', { onClick: () => setCsvStep(3), disabled: csvRun, className: "px-5 py-2.5 border text-slate-600 rounded-lg font-medium hover:bg-slate-50 flex items-center gap-2"         ,}, _react2.default.createElement(_lucidereact.ChevronLeft, { className: "w-4 h-4" ,} ), " Back" )
+          , csvOut && _react2.default.createElement('button', { onClick: csvRestart, className: "px-5 py-2.5 border text-slate-600 rounded-lg font-medium hover:bg-slate-50 flex items-center gap-2"         ,}, _react2.default.createElement(_lucidereact.RotateCcw, { className: "w-4 h-4" ,} ), " New Course"  )
+        )
+      )
+    );
+
+    return null;
+  };
+
+  // ═══ SETTINGS ═══
+  const SettingsPage = () => {
+    const upd = (k, v) => setSettings(p => ({ ...p, [k]: v }));
+    const provider = AI_PROVIDERS.find(p => p.id === settings.provider) || AI_PROVIDERS[0];
+    return (
+      _react2.default.createElement('div', { className: "p-6 max-w-3xl mx-auto pb-24"   ,}
+        , _react2.default.createElement('h2', { className: "text-2xl font-bold mb-6"  ,}, "Unified Settings" )
+        , _react2.default.createElement('div', { className: "bg-white rounded-xl shadow-sm border overflow-hidden"    ,}
+          , _react2.default.createElement('div', { className: "p-6 border-b space-y-4"  ,}
+            , _react2.default.createElement('h3', { className: "text-lg font-bold flex items-center gap-2"    ,}, _react2.default.createElement(_lucidereact.Database, { className: "w-5 h-5 text-blue-500"  ,} ), " AI Configuration"  )
+            , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-4"   ,}
+              , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Provider"), _react2.default.createElement('select', { value: settings.provider, onChange: e => upd('provider', e.target.value), className: "w-full p-2 border rounded-lg mt-1"    ,}, AI_PROVIDERS.map(p => _react2.default.createElement('option', { key: p.id, value: p.id,}, p.name))))
+              , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Model"), _react2.default.createElement('input', { value: settings.model, onChange: e => upd('model', e.target.value), className: "w-full p-2 border rounded-lg mt-1"    , list: "model-list",} ), _react2.default.createElement('datalist', { id: "model-list",}, provider.models.map(m => _react2.default.createElement('option', { key: m, value: m,} ))))
+              , _react2.default.createElement('div', { className: "sm:col-span-2",}, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "API Key" ), _react2.default.createElement('input', { type: "password", value: settings.apiKey, onChange: e => upd('apiKey', e.target.value), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+              , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "API Delay (sec)"  ), _react2.default.createElement('input', { type: "number", min: 0, step: 0.5, value: settings.apiDelay, onChange: e => upd('apiDelay', parseFloat(e.target.value) || 0), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+              , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Language"), _react2.default.createElement('input', { value: settings.language, onChange: e => upd('language', e.target.value), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+            )
+          )
+          , _react2.default.createElement('div', { className: "p-6 border-b space-y-4"  ,}
+            , _react2.default.createElement('h3', { className: "text-lg font-bold flex items-center gap-2"    ,}, _react2.default.createElement(_lucidereact.Clock, { className: "w-5 h-5 text-blue-500"  ,} ), " Automation Timers"  )
+            , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-4"   ,}
+              , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Curriculum Auto-Update Time"  ), _react2.default.createElement('input', { type: "time", value: settings.curriculumUpdateTime, onChange: e => upd('curriculumUpdateTime', e.target.value), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+              , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "CSV Auto-Generation Time"  ), _react2.default.createElement('input', { type: "time", value: settings.csvAutoGenTime, onChange: e => upd('csvAutoGenTime', e.target.value), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+            )
+          )
+          , _react2.default.createElement('div', { className: "p-6 border-b space-y-4"  ,}
+            , _react2.default.createElement('h3', { className: "text-lg font-bold flex items-center gap-2"    ,}, _react2.default.createElement(_lucidereact.FileText, { className: "w-5 h-5 text-blue-500"  ,} ), " Reading Budgets"  )
+            , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Content Reading Mode"  ), _react2.default.createElement('select', { value: settings.contextBudget, onChange: e => upd('contextBudget', e.target.value), className: "w-full p-2 border rounded-lg mt-1"    ,}
+              , _react2.default.createElement('option', { value: "filename_only",}, "Filename Only (Lowest Cost)"   ), _react2.default.createElement('option', { value: "front_5000",}, "Front 5000 Characters"  ), _react2.default.createElement('option', { value: "front_5000_end_5000",}, "Front 5000 + End 5000"    ), _react2.default.createElement('option', { value: "whole_content",}, "Whole Content (Highest Cost)"   ), _react2.default.createElement('option', { value: "custom",}, "Custom")
+            ))
+            , settings.contextBudget === 'custom' && _react2.default.createElement('div', { className: "grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border"      ,}
+              , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Front Chars" ), _react2.default.createElement('input', { type: "number", value: settings.customFront, onChange: e => upd('customFront', parseInt(e.target.value) || 0), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+              , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "End Chars" ), _react2.default.createElement('input', { type: "number", value: settings.customEnd, onChange: e => upd('customEnd', parseInt(e.target.value) || 0), className: "w-full p-2 border rounded-lg mt-1"    ,} ))
+            )
+            , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Index Mode" ), _react2.default.createElement('select', { value: settings.indexMode, onChange: e => upd('indexMode', e.target.value), className: "w-full p-2 border rounded-lg mt-1"    ,}, _react2.default.createElement('option', { value: "update",}, "Smart Update" ), _react2.default.createElement('option', { value: "rebuild",}, "Full Rebuild" )))
+            , _react2.default.createElement('div', null, _react2.default.createElement('label', { className: "text-xs font-bold text-slate-500"  ,}, "Data Save Mode"  ), _react2.default.createElement('select', { value: settings.saveMode, onChange: e => upd('saveMode', e.target.value), className: "w-full p-2 border rounded-lg mt-1"    ,}, _react2.default.createElement('option', { value: "Comprehensive",}, "Comprehensive (Full History)"  ), _react2.default.createElement('option', { value: "Minimal",}, "Minimal")))
+          )
+          , _react2.default.createElement('div', { className: "p-6 border-b space-y-4"  ,}
+            , _react2.default.createElement('h3', { className: "text-lg font-bold flex items-center gap-2"    ,}, _react2.default.createElement(_lucidereact.Terminal, { className: "w-5 h-5 text-blue-500"  ,} ), " Developer & Debugging"   )
+            , _react2.default.createElement('label', { className: "flex items-center gap-3 cursor-pointer"   ,}
+              , _react2.default.createElement('input', { type: "checkbox", checked: settings.enableAILogging, onChange: e => upd('enableAILogging', e.target.checked), className: "w-4 h-4 text-blue-600 rounded"   ,} )
+              , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "text-sm font-medium text-slate-700"  ,}, "Enable AI Chat Logging"   ), _react2.default.createElement('p', { className: "text-xs text-slate-500" ,}, "Appends to App/ai_chat_log.txt"  ))
+            )
+          )
+          , _react2.default.createElement('div', { className: "p-4 bg-slate-50 flex justify-end"   ,}, _react2.default.createElement('button', { onClick: saveSettings, className: "px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700"      ,}, "Save Settings" ))
+        )
+      )
+    );
+  };
+
+  // ═══ MAIN RENDER ═══
+  return (
+    _react2.default.createElement('div', { className: "flex h-screen w-full bg-slate-50 font-sans text-slate-900 overflow-hidden"      ,}
+      , toast && _react2.default.createElement('div', { className: "fixed top-4 right-4 z-50"   ,}, _react2.default.createElement('div', { className: `flex items-center px-4 py-3 rounded-lg shadow-lg text-white ${toast.type === 'success' ? 'bg-green-600' : toast.type === 'error' ? 'bg-red-600' : 'bg-blue-600'}`,}, _react2.default.createElement(_lucidereact.CheckCircle, { className: "w-4 h-4 mr-2"  ,} ), toast.msg))
+      , _react2.default.createElement(Sidebar, null )
+      , _react2.default.createElement('div', { className: "flex-1 flex flex-col min-w-0 overflow-hidden"    ,}
+        , _react2.default.createElement('header', { className: "bg-white border-b h-12 flex items-center px-4 shrink-0 justify-between"       ,}
+          , _react2.default.createElement('h2', { className: "font-bold text-slate-700 truncate"  ,}, _optionalChain([navItems, 'access', _10 => _10.find, 'call', _11 => _11(n => n.id === page), 'optionalAccess', _12 => _12.label]) || 'Dashboard')
+          , _react2.default.createElement('div', { className: "flex items-center gap-2"  ,}
+            , _react2.default.createElement('div', { className: "text-xs text-slate-400" ,}, _optionalChain([wsHandle, 'optionalAccess', _13 => _13.name]))
+            , _react2.default.createElement('div', { className: "w-2 h-2 rounded-full bg-green-500"   ,})
+          )
+        )
+        , _react2.default.createElement('main', { className: "flex-1 overflow-y-auto" ,}
+          , page === 'home' && _react2.default.createElement(Dashboard, null )
+          , page === 'learning' && _react2.default.createElement(LearningAdventure, null )
+          , page === 'searcher' && _react2.default.createElement(KnowledgeSearcher, null )
+          , page === 'filemanager' && _react2.default.createElement(FileManager, null )
+          , page === 'revision' && _react2.default.createElement(RevisionNotes, null )
+          , page === 'csvgen' && _react2.default.createElement(CSVGenerator, null )
+          , page === 'settings' && _react2.default.createElement(SettingsPage, null )
+        )
+      )
+    )
+  );
+} exports.default = StudyHub;
+
+// ═══ QUIZ RENDERERS ═══
+function QuizRenderer({ q, type, answered, onSubmit }) {
+  if (type === 'MC') return _react2.default.createElement(MCQ, { q: q, answered: answered, onSubmit: onSubmit,} );
+  if (type === 'MS') return _react2.default.createElement(MSQ, { q: q, answered: answered, onSubmit: onSubmit,} );
+  if (type === 'FITB') return _react2.default.createElement(FITBQ, { q: q, answered: answered, onSubmit: onSubmit,} );
+  if (type === 'ORD') return _react2.default.createElement(ORDQ, { q: q, answered: answered, onSubmit: onSubmit,} );
+  return _react2.default.createElement('p', null, "Unsupported: " , type);
+}
+
+function MCQ({ q, answered, onSubmit }) {
+  const [sel, setSel] = _react.useState.call(void 0, null);
+  _react.useEffect.call(void 0, () => setSel(null), [q]);
+  const opts = [['A', q['option a']], ['B', q['option b']], ['C', q['option c']], ['D', q['option d']]].filter(o => o[1]);
+  const ans = (q.answer || '').trim();
+  return _react2.default.createElement('div', null
+    , _react2.default.createElement('div', { className: "space-y-2",}
+      , opts.map(([k, t]) => _react2.default.createElement('button', { key: k, onClick: () => !answered && setSel(k), disabled: answered,
+        className: `w-full p-3 rounded-xl border-2 text-left text-sm font-medium transition-all
+          ${sel === k && !answered ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-indigo-300'}
+          ${answered && k === ans ? 'border-green-500 bg-green-50' : ''}
+          ${answered && sel === k && k !== ans ? 'border-red-500 bg-red-50' : ''} disabled:cursor-default`,}
+        , _react2.default.createElement('span', { className: "inline-block w-6 h-6 text-center leading-6 bg-white rounded border text-xs font-bold mr-3"          ,}, k), t
+      ))
+    )
+    , !answered && _react2.default.createElement('button', { onClick: () => sel && onSubmit(sel === ans, sel), disabled: !sel, className: "mt-4 w-full py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"        ,}, "Check")
+  );
+}
+
+function MSQ({ q, answered, onSubmit }) {
+  const [sel, setSel] = _react.useState.call(void 0, []);
+  _react.useEffect.call(void 0, () => setSel([]), [q]);
+  const opts = [['A', q['option a']], ['B', q['option b']], ['C', q['option c']], ['D', q['option d']]].filter(o => o[1]);
+  const correct = (q.answer || '').split(',').map(s => s.trim());
+  const toggle = k => !answered && setSel(p => p.includes(k) ? p.filter(x => x !== k) : [...p, k]);
+  return _react2.default.createElement('div', null
+    , _react2.default.createElement('p', { className: "text-slate-500 text-sm mb-2"  ,}, "(Select all that apply)"   )
+    , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-2"   ,}
+      , opts.map(([k, t]) => {
+        const isS = sel.includes(k), isC = correct.includes(k);
+        let cls = 'border-slate-200 hover:border-indigo-300';
+        if (isS && !answered) cls = 'border-indigo-500 bg-indigo-50';
+        if (answered && isC) cls = 'border-green-500 bg-green-50';
+        if (answered && isS && !isC) cls = 'border-red-500 bg-red-50';
+        return _react2.default.createElement('button', { key: k, onClick: () => toggle(k), disabled: answered, className: `p-3 rounded-xl border-2 text-left text-sm font-medium ${cls} disabled:cursor-default`,}, t);
+      })
+    )
+    , !answered && _react2.default.createElement('button', { onClick: () => sel.length && onSubmit(sel.length === correct.length && sel.every(v => correct.includes(v)), sel.join(',')), disabled: !sel.length, className: "mt-4 w-full py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"        ,}, "Check")
+  );
+}
+
+function FITBQ({ q, answered, onSubmit }) {
+  const [val, setVal] = _react.useState.call(void 0, '');
+  _react.useEffect.call(void 0, () => setVal(''), [q]);
+  const ans = (q.answer || '').trim();
+  const submit = () => val.trim() && onSubmit(val.trim().toLowerCase() === ans.toLowerCase(), val);
+  return _react2.default.createElement('div', null
+    , _react2.default.createElement('input', { value: val, onChange: e => setVal(e.target.value), disabled: answered, placeholder: "Type your answer..."  , onKeyDown: e => e.key === 'Enter' && !answered && submit(),
+      className: `w-full p-4 rounded-xl border-2 text-center text-lg font-bold ${answered ? (val.trim().toLowerCase() === ans.toLowerCase() ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') : 'border-slate-200 focus:border-indigo-400'} focus:outline-none`,} )
+    , !answered && _react2.default.createElement('button', { onClick: submit, disabled: !val.trim(), className: "mt-4 w-full py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"        ,}, "Check")
+  );
+}
+
+function ORDQ({ q, answered, onSubmit }) {
+  const allOpts = [['A', q['option a']], ['B', q['option b']], ['C', q['option c']], ['D', q['option d']]].filter(o => o[1]);
+  const [order, setOrder] = _react.useState.call(void 0, []);
+  _react.useEffect.call(void 0, () => setOrder([]), [q]);
+  const avail = allOpts.filter(o => !order.includes(o[0]));
+  const correct = (q.answer || '').split(',').map(s => s.trim());
+  return _react2.default.createElement('div', null
+    , _react2.default.createElement('p', { className: "text-slate-500 text-sm mb-3 text-center"   ,}, "Tap items in order"   )
+    , _react2.default.createElement('div', { className: "min-h-16 p-3 bg-slate-100 rounded-xl border-2 border-dashed flex flex-wrap gap-2 items-center justify-center mb-4"           ,}
+      , order.length === 0 && _react2.default.createElement('span', { className: "text-slate-400 text-sm" ,}, "Your sequence here"  )
+      , order.map((k, i) => {
+        const t = _optionalChain([allOpts, 'access', _14 => _14.find, 'call', _15 => _15(o => o[0] === k), 'optionalAccess', _16 => _16[1]]);
+        return _react2.default.createElement('button', { key: k, onClick: () => !answered && setOrder(p => p.filter(x => x !== k)), disabled: answered,
+          className: `px-3 py-2 rounded-lg font-bold text-sm flex items-center gap-1 ${answered ? (correct[i] === k ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300') : 'bg-indigo-600 text-white'}`,}
+          , _react2.default.createElement('span', { className: "w-5 h-5 rounded-full bg-white/30 text-xs flex items-center justify-center"       ,}, i+1), t
+        );
+      })
+    )
+    , _react2.default.createElement('div', { className: "flex flex-wrap justify-center gap-2"   ,}, avail.map(([k, t]) => _react2.default.createElement('button', { key: k, onClick: () => !answered && setOrder(p => [...p, k]), disabled: answered, className: "px-4 py-3 bg-white border-2 rounded-xl font-bold text-slate-700 hover:border-indigo-300 disabled:opacity-0"        ,}, t)))
+    , !answered && _react2.default.createElement('button', { onClick: () => order.length === allOpts.length && onSubmit(order.join(',') === correct.join(','), order.join(',')), disabled: order.length !== allOpts.length, className: "mt-4 w-full py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"        ,}, "Check")
+  );
+}
+</script></head>
+  <body>
+  
+
+<div id="preview-app"></div></body></html>
