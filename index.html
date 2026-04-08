@@ -1,8 +1,8 @@
-<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com https://generativelanguage.googleapis.com https://openrouter.ai https://api.poe.com https://api.anthropic.com https://api.x.ai/v1; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta http-equiv="x-dns-prefetch-control" content="off"><script src="https://puc.poecdn.net/authenticated_preview_page/standard.3ef2c256959faf5a756d.js"></script>
+<!DOCTYPE html><html><head><meta name="datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com https://generativelanguage.googleapis.com https://openrouter.ai https://api.poe.com https://api.anthropic.com https://api.x.ai/v1; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta http-equiv="x-dns-prefetch-control" content="off"><script src="https://puc.poecdn.net/authenticated_preview_page/standard.3ef2c256959faf5a756d.js"></script>
     <meta charset="utf-8">
-    <title>Learning Adventure v16 (v14.5)</title>
+    <title>Learning Adventure v18 (v14.7)</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-  <script src="https://puc.poecdn.net/authenticated_preview_page/disableWebRTC.9710cebe07429a9e8e06.js"></script><meta name="x-poe-allow-downloads" content="true"><meta name="x-poe-datastore-behavior" content="disabled"><script src="https://puc.poecdn.net/authenticated_preview_page/tw.b9024aecac666455e183.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/deps.faccd16000d314dc16d5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/exports.b0f0f482cdeb5302b0b9.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/renderer.75c73ae6b4235f62945a.js"></script><script>Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }var _react = require('react'); var _react2 = _interopRequireDefault(_react);
+  <script src="https://puc.poecdn.net/authenticated_preview_page/disableWebRTC.9710cebe07429a9e8e06.js"></script><meta name="allow-downloads" content="true"><meta name="datastore-behavior" content="disabled"><script src="https://puc.poecdn.net/authenticated_preview_page/tw.b9024aecac666455e183.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/deps.faccd16000d314dc16d5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/exports.b0f0f482cdeb5302b0b9.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/renderer.75c73ae6b4235f62945a.js"></script><script>Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }var _react = require('react'); var _react2 = _interopRequireDefault(_react);
 
 
 
@@ -104,13 +104,23 @@ const extractJSON = text => {
   }
 };
 
-const readFileText = file => new Promise(r => {
-  if (file.name.endsWith('.pdf')) { r(`[PDF: ${file.name}]`); return; }
-  const fr = new FileReader();
-  fr.onload = e => r(e.target.result || '');
-  fr.onerror = () => r('');
-  fr.readAsText(file);
-});
+const readFileText = async file => {
+  try {
+    if (file && file.handle && typeof file.handle.getFile === 'function') {
+      const realFile = await file.handle.getFile();
+      if (realFile.name.endsWith('.pdf')) return `[PDF: ${realFile.name}]`;
+      return await realFile.text();
+    }
+    if (!(file instanceof Blob)) return '';
+    if (file.name && file.name.endsWith('.pdf')) return `[PDF: ${file.name}]`;
+    return new Promise(r => {
+      const fr = new FileReader();
+      fr.onload = e => r(e.target.result || '');
+      fr.onerror = () => r('');
+      fr.readAsText(file);
+    });
+  } catch (e3) { return ''; }
+};
 
 const simpleMarkdown = md => {
   if (!md) return '';
@@ -212,25 +222,20 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
 //  MAIN APP COMPONENT
 // ══════════════════════════════════════════════
  function StudyHub() {
-  // ── Navigation ──
   const [section, setSection] = _react.useState.call(void 0, 'dashboard');
   const [sidebarOpen, setSidebarOpen] = _react.useState.call(void 0, true);
   const [toast, setToast] = _react.useState.call(void 0, null);
 
-  // ── Workspace ──
   const [wsHandle, setWsHandle] = _react.useState.call(void 0, null);
   const dirs = _react.useRef.call(void 0, {});
 
-  // ── Settings ──
   const [settings, setSettings] = _react.useState.call(void 0, DEFAULT_SETTINGS);
 
-  // ── Dashboard / Performance ──
   const [perfData, setPerfData] = _react.useState.call(void 0, DEFAULT_PERF);
   const [reinfQ, setReinfQ] = _react.useState.call(void 0, []);
   const [histData, setHistData] = _react.useState.call(void 0, []);
   const [dashView, setDashView] = _react.useState.call(void 0, 'actions');
 
-  // ── Learning Adventure ──
   const [curriculum, setCurriculum] = _react.useState.call(void 0, {});
   const [laView, setLaView] = _react.useState.call(void 0, 'subjects');
   const [laSub, setLaSub] = _react.useState.call(void 0, null);
@@ -242,7 +247,6 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
   const [showHint, setShowHint] = _react.useState.call(void 0, false);
   const [feedback, setFeedback] = _react.useState.call(void 0, null);
 
-  // ── Knowledge Searcher ──
   const [fileIndex, setFileIndex] = _react.useState.call(void 0, []);
   const [searchQ, setSearchQ] = _react.useState.call(void 0, '');
   const [showFilters, setShowFilters] = _react.useState.call(void 0, false);
@@ -251,14 +255,12 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
   const [isIndexing, setIsIndexing] = _react.useState.call(void 0, false);
   const [idxProg, setIdxProg] = _react.useState.call(void 0, { total: 0, current: 0, name: '', aiCalls: 0 });
 
-  // ── File Manager ──
   const [folderStruct, setFolderStruct] = _react.useState.call(void 0, {});
   const [waitFiles, setWaitFiles] = _react.useState.call(void 0, []);
   const [fmView, setFmView] = _react.useState.call(void 0, 'overview');
   const [aiForm, setAiForm] = _react.useState.call(void 0, { job: '', hobbies: '', language: 'English', custom: '' });
   const [fmStatus, setFmStatus] = _react.useState.call(void 0, '');
 
-  // ── CSV Generator ──
   const [csvStep, setCsvStep] = _react.useState.call(void 0, 1);
   const [csvGoals, setCsvGoals] = _react.useState.call(void 0, {
     subject: '', language: 'English', level: 'elementary', numChapters: 5,
@@ -268,6 +270,8 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
   const [genChapters, setGenChapters] = _react.useState.call(void 0, []);
   const [globalFiles, setGlobalFiles] = _react.useState.call(void 0, []);
   const [chapterFiles, setChapterFiles] = _react.useState.call(void 0, {});
+  const [fileAssignMode, setFileAssignMode] = _react.useState.call(void 0, 'all');
+  const [expandedChapter, setExpandedChapter] = _react.useState.call(void 0, null);
   const [csvContent, setCsvContent] = _react.useState.call(void 0, '');
   const [csvRunning, setCsvRunning] = _react.useState.call(void 0, false);
   const [csvProgress, setCsvProgress] = _react.useState.call(void 0, 0);
@@ -275,13 +279,11 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
   const [useLibrary, setUseLibrary] = _react.useState.call(void 0, false);
   const [libFiles, setLibFiles] = _react.useState.call(void 0, []);
 
-  // ── Revision Notes ──
   const [revNotes, setRevNotes] = _react.useState.call(void 0, []);
   const [selNote, setSelNote] = _react.useState.call(void 0, null);
   const [selNoteContent, setSelNoteContent] = _react.useState.call(void 0, '');
   const [genRevNote, setGenRevNote] = _react.useState.call(void 0, false);
 
-  // ── Chart toggles ──
   const [overallChart, setOverallChart] = _react.useState.call(void 0, 'radar');
   const [chapterChart, setChapterChart] = _react.useState.call(void 0, 'bar');
   const [perfSubject, setPerfSubject] = _react.useState.call(void 0, '');
@@ -351,7 +353,7 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
         const fh = await getFileH(dirs.current.app, 'ai_chat_log.txt', true);
         const f = await fh.getFile(); const prev = await f.text();
         await writeFile(fh, prev + `\n\n=== [${new Date().toLocaleString()}] ===\n--- PROMPT ---\n${promptText}\n--- RESPONSE ---\n${responseText}\n`);
-      } catch (e3) {}
+      } catch (e4) {}
     }
     return responseText;
   };
@@ -374,15 +376,10 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
       d.revision = await getDir(root, 'User_revision_notes');
       dirs.current = d;
 
-      // Load settings
-      try { const t = await readOrCreate(d.app, 'app_setting.json', JSON.stringify(DEFAULT_SETTINGS, null, 2)); setSettings(s => ({ ...s, ...JSON.parse(t) })); } catch (e4) {}
-      // Load performance
-      try { const t = await readOrCreate(d.app, 'Current_User_Performance.json', JSON.stringify(DEFAULT_PERF, null, 2)); setPerfData(JSON.parse(t)); } catch (e5) {}
-      // Load reinforcement
-      try { const t = await readOrCreate(d.app, 'Current_User_Reinforcement_Question.json', '[]'); setReinfQ(JSON.parse(t)); } catch (e6) {}
-      // Load history
-      try { const t = await readOrCreate(d.app, 'User_Reinforcement_History.json', '[]'); setHistData(JSON.parse(t)); } catch (e7) {}
-      // Load curriculum CSV
+      try { const t = await readOrCreate(d.app, 'app_setting.json', JSON.stringify(DEFAULT_SETTINGS, null, 2)); setSettings(s => ({ ...s, ...JSON.parse(t) })); } catch (e5) {}
+      try { const t = await readOrCreate(d.app, 'Current_User_Performance.json', JSON.stringify(DEFAULT_PERF, null, 2)); setPerfData(JSON.parse(t)); } catch (e6) {}
+      try { const t = await readOrCreate(d.app, 'Current_User_Reinforcement_Question.json', '[]'); setReinfQ(JSON.parse(t)); } catch (e7) {}
+      try { const t = await readOrCreate(d.app, 'User_Reinforcement_History.json', '[]'); setHistData(JSON.parse(t)); } catch (e8) {}
       try {
         const t = await readOrCreate(d.content, 'Learning_Adventure_Content_All_Course.csv', DEFAULT_CSV);
         const parsed = parseCSV(t);
@@ -395,16 +392,11 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
           struct[s][c].questions.push(r);
         });
         setCurriculum(struct);
-      } catch (e8) {}
-      // Load search index
-      try { const t = await readFile(await getFileH(d.searcher, 'library_searching_system_index.json', false)); setFileIndex(JSON.parse(t)); } catch (e9) { setFileIndex([]); }
-      // Load folder structure
-      try { const t = await readFile(await getFileH(d.app, 'folder_directory_structure.json', false)); setFolderStruct(JSON.parse(t)); } catch (e10) {}
-      // Load wait files
+      } catch (e9) {}
+      try { const t = await readFile(await getFileH(d.searcher, 'library_searching_system_index.json', false)); setFileIndex(JSON.parse(t)); } catch (e10) { setFileIndex([]); }
+      try { const t = await readFile(await getFileH(d.app, 'folder_directory_structure.json', false)); setFolderStruct(JSON.parse(t)); } catch (e11) {}
       await loadWaitFiles(d.wait);
-      // Load revision notes list
       await loadRevNotes(d.revision);
-      // Load library files for CSV gen
       await scanLibraryFiles(d.library);
 
       showToast('Workspace connected!', 'success');
@@ -448,7 +440,7 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
           files = files.concat(sub);
         }
       }
-    } catch (e11) {}
+    } catch (e12) {}
     if (!path) setLibFiles(files);
     return files;
   };
@@ -463,7 +455,7 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
       if (b === 'front_5000_end_5000') return t.length <= 10000 ? t : t.substring(0, 5000) + '\n...\n' + t.substring(t.length - 5000);
       if (b === 'custom') return t.length <= (settings.customFront + settings.customEnd) ? t : t.substring(0, settings.customFront) + '\n...\n' + t.substring(t.length - settings.customEnd);
       return t.substring(0, 5000);
-    } catch (e12) { return file.name; }
+    } catch (e13) { return file.name; }
   };
 
   // ══════════════════════════════════════════════
@@ -484,7 +476,6 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
       for (const pfh of pendingFiles) {
         const f = await pfh.getFile(); const t = await f.text();
         const newData = parseCSV(t);
-        // Group by subject for smart merge
         const bySubject = {};
         newData.forEach(r => { const s = r.subject; if (!bySubject[s]) bySubject[s] = []; bySubject[s].push(r); });
         Object.keys(bySubject).forEach(sub => {
@@ -495,7 +486,6 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
         await dirs.current.pending.removeEntry(pfh.name);
       }
       await writeFile(mainFH, toCSV(mainData));
-      // Rebuild curriculum
       const struct = {};
       mainData.forEach(r => {
         const s = r.subject, c = r['chapter number'];
@@ -551,7 +541,7 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
           const meta = extractJSON(resp); calls++;
           setIdxProg(p => ({ ...p, aiCalls: calls }));
           newIdx.push({ id: `${item.path}-${file.lastModified}`, name: file.name, path: item.path, size: file.size, lastModified: file.lastModified, type: item.ext.replace('.', '').toUpperCase(), summary: meta.summary || '', tags: meta.tags || [], author: meta.author || 'Unknown' });
-        } catch (e13) {
+        } catch (e14) {
           newIdx.push({ id: `${item.path}-${file.lastModified}`, name: file.name, path: item.path, size: file.size, lastModified: file.lastModified, type: item.ext.replace('.', '').toUpperCase(), summary: 'Indexing failed', tags: [], author: 'Unknown' });
         }
       }
@@ -688,13 +678,12 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
         });
       }
 
-      // AI knowledge point generation
       try {
         const mistakeSummary = Object.keys(grouped).map(s => `${s}: ${grouped[s].length} mistakes`).join(', ');
         const prompt = `Based on these study mistakes (${mistakeSummary}), generate key knowledge points and study tips in ${settings.language}. Format as markdown with ## headers per subject and bullet points. Be concise but insightful.\n\nMistakes:\n${JSON.stringify(filtered.slice(0, 20).map(h => ({ subject: _optionalChain([h, 'access', _33 => _33.questionObj, 'optionalAccess', _34 => _34.subject]), question: _optionalChain([h, 'access', _35 => _35.questionObj, 'optionalAccess', _36 => _36.question]), correct: _optionalChain([h, 'access', _37 => _37.questionObj, 'optionalAccess', _38 => _38.answer]), wrong: h.userAnswer })))}`;
         const analysis = await callAI(prompt, 'Generate study analysis in markdown.');
         md += `\n---\n\n# AI Study Analysis\n\n${analysis}\n`;
-      } catch (e14) {}
+      } catch (e15) {}
 
       const fh = await getFileH(dirs.current.revision, filename, true);
       await writeFile(fh, md);
@@ -734,7 +723,10 @@ function QuizRenderer({ question, type, isAnswered, onSubmit }) {
       for (let i = 0; i < genChapters.length; i++) {
         const ch = genChapters[i];
         addLog(`Generating Ch.${ch.number}: ${ch.title}`);
-        const filesForCh = [...globalFiles, ...(chapterFiles[ch.number] || [])];
+        // Combine files based on assignment mode
+        const filesForCh = fileAssignMode === 'all'
+          ? [...globalFiles]
+          : [...(chapterFiles[ch.number] || [])];
         let src = '';
         for (const f of filesForCh) {
           if (f.handle) { const fi = await f.handle.getFile(); src += `\n---${fi.name}---\n${(await fi.text()).substring(0, 1500)}`; }
@@ -852,17 +844,11 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
     } catch (e) { setFmStatus('Error: ' + e.message); }
   };
 
-  // ══════════════════════════════════════════════
-  //  SAVE SETTINGS
-  // ══════════════════════════════════════════════
   const saveAllSettings = async () => {
     if (dirs.current.app) await writeJSON(dirs.current.app, 'app_setting.json', settings);
     showToast('Settings saved!', 'success');
   };
 
-  // ══════════════════════════════════════════════
-  //  SUBJECT HELPERS
-  // ══════════════════════════════════════════════
   const subIcon = n => {
     const l = n.toLowerCase();
     if (l.includes('math')) return _react2.default.createElement(_lucidereact.Calculator, { className: "w-8 h-8 text-blue-500"  ,} );
@@ -878,6 +864,12 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
     if (l.includes('chinese') || l.includes('english')) return 'bg-red-50 border-red-200 hover:bg-red-100';
     return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
   };
+
+  // ══════════════════════════════════════════════
+  //  HELPER: count total chapter files selected
+  // ══════════════════════════════════════════════
+  const totalChapterFilesCount = Object.values(chapterFiles).reduce((sum, arr) => sum + arr.length, 0);
+  const hasAnySourceFiles = fileAssignMode === 'all' ? globalFiles.length > 0 : totalChapterFilesCount > 0;
 
   // ══════════════════════════════════════════════
   //  SETUP SCREEN
@@ -902,9 +894,6 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
     );
   }
 
-  // ══════════════════════════════════════════════
-  //  NAV ITEMS
-  // ══════════════════════════════════════════════
   const navItems = [
     { id: 'dashboard', icon: _lucidereact.Home, label: 'Dashboard' },
     { id: 'learning', icon: _lucidereact.BookOpen, label: 'Learning Adventure' },
@@ -915,9 +904,6 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
     { id: 'settings', icon: _lucidereact.Settings, label: 'Settings' },
   ];
 
-  // ══════════════════════════════════════════════
-  //  PERFORMANCE CHART DATA
-  // ══════════════════════════════════════════════
   const overallData = Object.keys(perfData.subjects).map(s => {
     const d = perfData.subjects[s];
     return { subject: s, score: d.totalQuestions_eachSubject > 0 ? Math.round((d.totalCorrect_eachSubject / d.totalQuestions_eachSubject) * 100) : 0, fullMark: 100 };
@@ -935,7 +921,6 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
   // ══════════════════════════════════════════════
   return (
     _react2.default.createElement('div', { className: "flex h-screen w-full bg-slate-50 font-sans overflow-hidden text-slate-800"      ,}
-      /* Toast */
       , toast && (
         _react2.default.createElement('div', { className: "fixed top-4 right-4 z-50"   ,}
           , _react2.default.createElement('div', { className: `flex items-center px-4 py-3 rounded-xl shadow-lg text-white text-sm font-medium ${toast.type === 'success' ? 'bg-green-600' : toast.type === 'error' ? 'bg-red-600' : 'bg-blue-600'}`,}
@@ -979,7 +964,6 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
           , section === 'dashboard' && (
             _react2.default.createElement('div', { className: "p-6 max-w-6xl mx-auto"  ,}
               , _react2.default.createElement('h1', { className: "text-2xl font-extrabold mb-6 flex items-center gap-2"     ,}, _react2.default.createElement(_lucidereact.Sparkles, { className: "text-amber-400",} ), " Dashboard" )
-              /* Stats */
               , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6"    ,}
                 , _react2.default.createElement('div', { className: "bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4"       ,}
                   , _react2.default.createElement('div', { className: "w-12 h-12 rounded-xl bg-orange-100 text-orange-500 flex items-center justify-center"       ,}, _react2.default.createElement(_lucidereact.Flame, { className: "w-6 h-6" ,} ))
@@ -994,13 +978,10 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
                   , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "text-slate-500 text-sm" ,}, "Indexed Files" ), _react2.default.createElement('p', { className: "text-xl font-bold" ,}, fileIndex.length))
                 )
               )
-
-              /* View Toggle */
               , _react2.default.createElement('div', { className: "flex gap-2 mb-6"  ,}
                 , _react2.default.createElement('button', { onClick: () => setDashView('actions'), className: `px-4 py-2 rounded-xl text-sm font-bold ${dashView === 'actions' ? 'bg-indigo-600 text-white' : 'bg-white border text-slate-600'}`,}, "Actions")
                 , _react2.default.createElement('button', { onClick: () => setDashView('performance'), className: `px-4 py-2 rounded-xl text-sm font-bold ${dashView === 'performance' ? 'bg-indigo-600 text-white' : 'bg-white border text-slate-600'}`,}, "Performance")
               )
-
               , dashView === 'actions' && (
                 _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-4"   ,}
                   , _react2.default.createElement('button', { onClick: mergeCurriculum, className: "bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition-shadow text-left"       ,}
@@ -1025,7 +1006,6 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
                   )
                 )
               )
-
               , dashView === 'performance' && (
                 _react2.default.createElement('div', { className: "grid grid-cols-1 lg:grid-cols-2 gap-6"   ,}
                   , _react2.default.createElement('div', { className: "bg-white p-5 rounded-2xl shadow-sm border"    ,}
@@ -1552,28 +1532,161 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
                   )
                 )
 
-                /* Step 4: Source Materials */
+                /* Step 4: Source Materials — NEW with All Chapters / Chapter by Chapter toggle */
                 , csvStep === 4 && (
-                  _react2.default.createElement('div', { className: "space-y-3",}
-                    , _react2.default.createElement('h2', { className: "font-bold text-lg" ,}, "Source Materials (Optional)"  )
-                    , _react2.default.createElement('p', { className: "text-sm text-slate-500" ,}, "Add reference files to enrich questions. You can use Library files."          )
-                    , _react2.default.createElement('div', { className: "flex gap-2 items-center"  ,}, _react2.default.createElement('label', { className: "flex items-center gap-2 text-sm"   ,}, _react2.default.createElement('input', { type: "checkbox", checked: useLibrary, onChange: e => setUseLibrary(e.target.checked), className: "rounded",} ), " Browse Library"  ))
-                    , useLibrary && (
-                      _react2.default.createElement('div', { className: "border rounded-xl p-3 max-h-40 overflow-y-auto space-y-1 bg-slate-50"      ,}
-                        , libFiles.map((f, i) => (
-                          _react2.default.createElement('label', { key: i, className: "flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer text-sm"       ,}
-                            , _react2.default.createElement('input', { type: "checkbox", checked: globalFiles.some(gf => gf.name === f.name), onChange: e => {
-                              if (e.target.checked) setGlobalFiles(p => [...p, { name: f.name, handle: f.handle }]);
-                              else setGlobalFiles(p => p.filter(gf => gf.name !== f.name));
-                            }, className: "rounded",} )
-                            , _react2.default.createElement('span', { className: "truncate",}, f.name), _react2.default.createElement('span', { className: "text-xs text-slate-400 shrink-0"  ,}, f.ext)
-                          )
-                        ))
+                  _react2.default.createElement('div', { className: "space-y-4",}
+                    , _react2.default.createElement('div', null
+                      , _react2.default.createElement('h2', { className: "font-bold text-lg" ,}, "Source Materials (Optional)"  )
+                      , _react2.default.createElement('p', { className: "text-sm text-slate-500 mt-1"  ,}, "Add reference files to enrich question generation. Choose how files are assigned to chapters."             )
+                    )
+
+                    /* ── Mode Selector ── */
+                    , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-3"  ,}
+                      , _react2.default.createElement('button', {
+                        onClick: () => { setFileAssignMode('all'); setChapterFiles({}); setExpandedChapter(null); },
+                        className: `p-3.5 rounded-xl border-2 text-left transition-all ${fileAssignMode === 'all' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 hover:border-slate-300'}`,}
+
+                        , _react2.default.createElement('div', { className: "flex items-center gap-2 mb-1"   ,}
+                          , _react2.default.createElement(_lucidereact.Globe, { className: `w-4 h-4 ${fileAssignMode === 'all' ? 'text-blue-600' : 'text-slate-400'}`,} )
+                          , _react2.default.createElement('span', { className: `text-sm font-bold ${fileAssignMode === 'all' ? 'text-blue-700' : 'text-slate-700'}`,}, "All Chapters" )
+                        )
+                        , _react2.default.createElement('p', { className: "text-xs text-slate-500 leading-snug"  ,}, "Selected file(s) will be used as reference for "        , _react2.default.createElement('strong', null, "every"), " chapter." )
+                      )
+                      , _react2.default.createElement('button', {
+                        onClick: () => { setFileAssignMode('chapter'); setGlobalFiles([]); },
+                        className: `p-3.5 rounded-xl border-2 text-left transition-all ${fileAssignMode === 'chapter' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 hover:border-slate-300'}`,}
+
+                        , _react2.default.createElement('div', { className: "flex items-center gap-2 mb-1"   ,}
+                          , _react2.default.createElement(_lucidereact.BookOpen, { className: `w-4 h-4 ${fileAssignMode === 'chapter' ? 'text-blue-600' : 'text-slate-400'}`,} )
+                          , _react2.default.createElement('span', { className: `text-sm font-bold ${fileAssignMode === 'chapter' ? 'text-blue-700' : 'text-slate-700'}`,}, "Chapter by Chapter"  )
+                        )
+                        , _react2.default.createElement('p', { className: "text-xs text-slate-500 leading-snug"  ,}, "Assign " , _react2.default.createElement('strong', null, "specific"), " files to individual chapters."    )
                       )
                     )
-                    , globalFiles.length > 0 && _react2.default.createElement('div', { className: "text-xs text-slate-500" ,}, globalFiles.length, " file(s) selected"  )
-                    , _react2.default.createElement('div', { className: "flex justify-between" ,}, _react2.default.createElement('button', { onClick: () => setCsvStep(3), className: "px-4 py-2 border rounded-lg text-sm font-medium text-slate-600 flex items-center gap-1"         ,}, _react2.default.createElement(_lucidereact.ChevronLeft, { className: "w-4 h-4" ,} ), " Back" )
-                      , _react2.default.createElement('button', { onClick: () => setCsvStep(5), className: "px-5 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm flex items-center gap-1"         ,}, globalFiles.length ? 'Continue' : 'Skip', " " , _react2.default.createElement(_lucidereact.ChevronRight, { className: "w-4 h-4" ,} )))
+
+                    /* ── All Chapters Mode ── */
+                    , fileAssignMode === 'all' && (
+                      _react2.default.createElement('div', { className: "space-y-3",}
+                        , _react2.default.createElement('div', { className: "flex gap-2 items-center"  ,}
+                          , _react2.default.createElement('label', { className: "flex items-center gap-2 text-sm cursor-pointer"    ,}
+                            , _react2.default.createElement('input', { type: "checkbox", checked: useLibrary, onChange: e => setUseLibrary(e.target.checked), className: "rounded",} ), "Browse Library"
+
+                          )
+                        )
+                        , useLibrary && (
+                          _react2.default.createElement('div', { className: "border rounded-xl p-3 max-h-44 overflow-y-auto space-y-1 bg-slate-50"      ,}
+                            , libFiles.length === 0 && _react2.default.createElement('p', { className: "text-xs text-slate-400 text-center py-3"   ,}, "No library files found. Add files to Management_Library."       )
+                            , libFiles.map((f, i) => (
+                              _react2.default.createElement('label', { key: i, className: "flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer text-sm"       ,}
+                                , _react2.default.createElement('input', { type: "checkbox", checked: globalFiles.some(gf => gf.name === f.name), onChange: e => {
+                                  if (e.target.checked) setGlobalFiles(p => [...p, { name: f.name, handle: f.handle }]);
+                                  else setGlobalFiles(p => p.filter(gf => gf.name !== f.name));
+                                }, className: "rounded",} )
+                                , _react2.default.createElement(_lucidereact.FileText, { className: "w-3.5 h-3.5 text-slate-400 shrink-0"   ,} )
+                                , _react2.default.createElement('span', { className: "truncate flex-1" ,}, f.name)
+                                , _react2.default.createElement('span', { className: "text-xs text-slate-400 shrink-0"  ,}, f.ext)
+                              )
+                            ))
+                          )
+                        )
+                        , globalFiles.length > 0 && (
+                          _react2.default.createElement('div', { className: "flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2"          ,}
+                            , _react2.default.createElement(_lucidereact.CheckCircle, { className: "w-3.5 h-3.5" ,} )
+                            , _react2.default.createElement('span', null, _react2.default.createElement('strong', null, globalFiles.length), " file(s) selected — will apply to all "        , genChapters.length, " chapters" )
+                          )
+                        )
+                      )
+                    )
+
+                    /* ── Chapter by Chapter Mode ── */
+                    , fileAssignMode === 'chapter' && (
+                      _react2.default.createElement('div', { className: "space-y-2 max-h-80 overflow-y-auto pr-1"   ,}
+                        , genChapters.length === 0 && _react2.default.createElement('p', { className: "text-sm text-slate-400 text-center py-4"   ,}, "No chapters generated yet."   )
+                        , genChapters.map(ch => {
+                          const chFiles = chapterFiles[ch.number] || [];
+                          const isExpanded = expandedChapter === ch.number;
+                          return (
+                            _react2.default.createElement('div', { key: ch.number, className: `border rounded-xl overflow-hidden transition-all ${isExpanded ? 'border-blue-300 shadow-sm' : 'border-slate-200'}`,}
+                              /* Chapter header */
+                              , _react2.default.createElement('button', {
+                                onClick: () => setExpandedChapter(isExpanded ? null : ch.number),
+                                className: `w-full flex items-center gap-2.5 p-3 text-left transition-colors ${isExpanded ? 'bg-blue-50' : 'bg-slate-50 hover:bg-slate-100'}`,}
+
+                                , _react2.default.createElement('span', { className: "w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center shrink-0"          ,}, ch.number)
+                                , _react2.default.createElement('div', { className: "flex-1 min-w-0" ,}
+                                  , _react2.default.createElement('span', { className: "text-sm font-semibold truncate block"   ,}, ch.title)
+                                )
+                                , chFiles.length > 0 && (
+                                  _react2.default.createElement('span', { className: "text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold shrink-0"       ,}
+                                    , chFiles.length, " file" , chFiles.length > 1 ? 's' : ''
+                                  )
+                                )
+                                , _react2.default.createElement(_lucidereact.ChevronRight, { className: `w-4 h-4 text-slate-400 transition-transform shrink-0 ${isExpanded ? 'rotate-90' : ''}`,} )
+                              )
+
+                              /* Expanded file picker */
+                              , isExpanded && (
+                                _react2.default.createElement('div', { className: "p-3 border-t bg-white space-y-2"   ,}
+                                  , _react2.default.createElement('p', { className: "text-xs text-slate-500" ,}, "Select files for Chapter "    , ch.number, ":")
+                                  , _react2.default.createElement('div', { className: "border rounded-lg p-2 max-h-36 overflow-y-auto space-y-1 bg-slate-50"      ,}
+                                    , libFiles.length === 0 && _react2.default.createElement('p', { className: "text-xs text-slate-400 text-center py-2"   ,}, "No library files found."   )
+                                    , libFiles.map((f, fi) => (
+                                      _react2.default.createElement('label', { key: fi, className: "flex items-center gap-2 p-1.5 rounded-lg hover:bg-white cursor-pointer text-xs"       ,}
+                                        , _react2.default.createElement('input', {
+                                          type: "checkbox",
+                                          checked: chFiles.some(cf => cf.name === f.name),
+                                          onChange: e => {
+                                            if (e.target.checked) {
+                                              setChapterFiles(p => ({ ...p, [ch.number]: [...(p[ch.number] || []), { name: f.name, handle: f.handle }] }));
+                                            } else {
+                                              setChapterFiles(p => ({ ...p, [ch.number]: (p[ch.number] || []).filter(cf => cf.name !== f.name) }));
+                                            }
+                                          },
+                                          className: "rounded",}
+                                        )
+                                        , _react2.default.createElement(_lucidereact.FileText, { className: "w-3 h-3 text-slate-400 shrink-0"   ,} )
+                                        , _react2.default.createElement('span', { className: "truncate flex-1" ,}, f.name)
+                                        , _react2.default.createElement('span', { className: "text-xs text-slate-400 shrink-0"  ,}, f.ext)
+                                      )
+                                    ))
+                                  )
+                                  , chFiles.length > 0 && (
+                                    _react2.default.createElement('div', { className: "flex flex-wrap gap-1"  ,}
+                                      , chFiles.map((cf, ci) => (
+                                        _react2.default.createElement('span', { key: ci, className: "inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200"          ,}
+                                          , _react2.default.createElement(_lucidereact.FileText, { className: "w-2.5 h-2.5" ,} ), cf.name
+                                          , _react2.default.createElement('button', { onClick: () => setChapterFiles(p => ({ ...p, [ch.number]: (p[ch.number] || []).filter(x => x.name !== cf.name) })), className: "hover:text-red-500 ml-0.5" ,}
+                                            , _react2.default.createElement(_lucidereact.X, { className: "w-2.5 h-2.5" ,} )
+                                          )
+                                        )
+                                      ))
+                                    )
+                                  )
+                                )
+                              )
+                            )
+                          );
+                        })
+
+                        /* Summary bar */
+                        , totalChapterFilesCount > 0 && (
+                          _react2.default.createElement('div', { className: "flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 mt-2"           ,}
+                            , _react2.default.createElement(_lucidereact.CheckCircle, { className: "w-3.5 h-3.5" ,} )
+                            , _react2.default.createElement('span', null, _react2.default.createElement('strong', null, totalChapterFilesCount), " file assignment(s) across "    , Object.keys(chapterFiles).filter(k => chapterFiles[k].length > 0).length, " chapter(s)" )
+                          )
+                        )
+                      )
+                    )
+
+                    /* ── Navigation ── */
+                    , _react2.default.createElement('div', { className: "flex justify-between pt-1"  ,}
+                      , _react2.default.createElement('button', { onClick: () => setCsvStep(3), className: "px-4 py-2 border rounded-lg text-sm font-medium text-slate-600 flex items-center gap-1"         ,}
+                        , _react2.default.createElement(_lucidereact.ChevronLeft, { className: "w-4 h-4" ,} ), " Back"
+                      )
+                      , _react2.default.createElement('button', { onClick: () => setCsvStep(5), className: "px-5 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm flex items-center gap-1"         ,}
+                        , hasAnySourceFiles ? 'Continue' : 'Skip', " " , _react2.default.createElement(_lucidereact.ChevronRight, { className: "w-4 h-4" ,} )
+                      )
+                    )
                   )
                 )
 
@@ -1582,6 +1695,16 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
                   _react2.default.createElement('div', { className: "space-y-3",}
                     , _react2.default.createElement('h2', { className: "font-bold text-lg" ,}, "Generate CSV" )
                     , _react2.default.createElement('p', { className: "text-sm text-slate-500" ,}, genChapters.length, " ch × "   , csvGoals.questionsPerChapter, " Q = up to "     , genChapters.length * csvGoals.questionsPerChapter, " questions" )
+                    /* Source files summary */
+                    , hasAnySourceFiles && (
+                      _react2.default.createElement('div', { className: "text-xs text-slate-500 bg-slate-50 rounded-lg p-2.5 border"     ,}
+                        , fileAssignMode === 'all' ? (
+                          _react2.default.createElement('span', null, "📎 " , _react2.default.createElement('strong', null, globalFiles.length), " file(s) applied to all chapters"     )
+                        ) : (
+                          _react2.default.createElement('span', null, "📎 " , _react2.default.createElement('strong', null, totalChapterFilesCount), " file assignment(s) across "    , Object.keys(chapterFiles).filter(k => chapterFiles[k].length > 0).length, " chapter(s) (chapter-specific)"  )
+                        )
+                      )
+                    )
                     , !csvContent && !csvRunning && (
                       _react2.default.createElement('div', { className: "text-center py-6" ,}
                         , _react2.default.createElement('button', { onClick: genCSVContent, className: "px-8 py-3 bg-green-600 text-white rounded-xl font-bold flex items-center gap-2 mx-auto"         ,}
@@ -1628,7 +1751,7 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
                         className: "flex-1 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-1"          ,}, _react2.default.createElement(_lucidereact.Download, { className: "w-4 h-4" ,} ), " Download" )
                       , _react2.default.createElement('button', { onClick: saveCsvToPending, className: "flex-1 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-1"          ,}, _react2.default.createElement(_lucidereact.FileOutput, { className: "w-4 h-4" ,} ), " Save to Pending"   )
                     )
-                    , _react2.default.createElement('button', { onClick: () => { setCsvStep(1); setCsvContent(''); setGenChapters([]); setOutlineFiles([]); setGlobalFiles([]); setChapterFiles({}); setCsvGoals({ ...csvGoals, subject: '' }); },
+                    , _react2.default.createElement('button', { onClick: () => { setCsvStep(1); setCsvContent(''); setGenChapters([]); setOutlineFiles([]); setGlobalFiles([]); setChapterFiles({}); setFileAssignMode('all'); setExpandedChapter(null); setCsvGoals({ ...csvGoals, subject: '' }); },
                       className: "text-slate-500 text-sm hover:text-slate-700 flex items-center gap-1 mx-auto"      ,}, _react2.default.createElement(_lucidereact.RotateCcw, { className: "w-3 h-3" ,} ), " Start Over"  )
                   )
                 )
@@ -1641,7 +1764,6 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
             _react2.default.createElement('div', { className: "p-6 max-w-3xl mx-auto pb-24"   ,}
               , _react2.default.createElement('h1', { className: "text-2xl font-extrabold mb-6"  ,}, "Unified Settings" )
               , _react2.default.createElement('div', { className: "bg-white rounded-2xl shadow-sm border overflow-hidden"    ,}
-                /* AI Config */
                 , _react2.default.createElement('div', { className: "p-5 border-b" ,}
                   , _react2.default.createElement('h3', { className: "font-bold text-lg mb-4 flex items-center gap-2"     ,}, _react2.default.createElement(_lucidereact.Database, { className: "w-5 h-5 text-blue-500"  ,} ), " AI Configuration"  )
                   , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-4"   ,}
@@ -1659,8 +1781,6 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
                       , _react2.default.createElement('input', { type: "text", value: settings.language, onChange: e => setSettings({ ...settings, language: e.target.value }), className: "w-full p-2 border rounded-lg text-sm"    ,} ))
                   )
                 )
-
-                /* Automation */
                 , _react2.default.createElement('div', { className: "p-5 border-b" ,}
                   , _react2.default.createElement('h3', { className: "font-bold text-lg mb-4 flex items-center gap-2"     ,}, _react2.default.createElement(_lucidereact.Clock, { className: "w-5 h-5 text-blue-500"  ,} ), " Automation" )
                   , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-4"   ,}
@@ -1670,8 +1790,6 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
                       , _react2.default.createElement('input', { type: "time", value: settings.csvGenerationTime, onChange: e => setSettings({ ...settings, csvGenerationTime: e.target.value }), className: "w-full p-2 border rounded-lg text-sm"    ,} ))
                   )
                 )
-
-                /* Reading Budget */
                 , _react2.default.createElement('div', { className: "p-5 border-b" ,}
                   , _react2.default.createElement('h3', { className: "font-bold text-lg mb-4 flex items-center gap-2"     ,}, _react2.default.createElement(_lucidereact.FileText, { className: "w-5 h-5 text-blue-500"  ,} ), " Reading Budget"  )
                   , _react2.default.createElement('select', { value: settings.contextBudget, onChange: e => setSettings({ ...settings, contextBudget: e.target.value }), className: "w-full p-2 border rounded-lg text-sm mb-3"     ,}
@@ -1690,8 +1808,6 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
                     )
                   )
                 )
-
-                /* Index & Save Mode */
                 , _react2.default.createElement('div', { className: "p-5 border-b" ,}
                   , _react2.default.createElement('h3', { className: "font-bold text-lg mb-4 flex items-center gap-2"     ,}, _react2.default.createElement(_lucidereact.RefreshCw, { className: "w-5 h-5 text-blue-500"  ,} ), " Index & Save Mode"    )
                   , _react2.default.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-4"   ,}
@@ -1705,8 +1821,6 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
                       ))
                   )
                 )
-
-                /* Developer */
                 , _react2.default.createElement('div', { className: "p-5",}
                   , _react2.default.createElement('h3', { className: "font-bold text-lg mb-4 flex items-center gap-2"     ,}, _react2.default.createElement(_lucidereact.Settings, { className: "w-5 h-5 text-blue-500"  ,} ), " Developer & Debugging"   )
                   , _react2.default.createElement('label', { className: "flex items-center gap-3 cursor-pointer"   ,}
@@ -1714,7 +1828,6 @@ Wrap every field in double quotes. Mix question types randomly. Randomize correc
                     , _react2.default.createElement('div', null, _react2.default.createElement('p', { className: "text-sm font-medium" ,}, "Enable AI Chat Logging"   ), _react2.default.createElement('p', { className: "text-xs text-slate-500" ,}, "Logs all AI prompts/responses to App/ai_chat_log.txt"     ))
                   )
                 )
-
                 , _react2.default.createElement('div', { className: "p-4 bg-slate-50 border-t flex justify-end"    ,}
                   , _react2.default.createElement('button', { onClick: saveAllSettings, className: "px-6 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm"      ,}, "Save Settings" )
                 )
